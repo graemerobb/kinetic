@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Clinic",
+  "type": "object",
+  "$id": "https://example.com/schemas/clinic.json",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique clinic identifier"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "speciality": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "data_sharing_tokens": {
+      "type": "integer"
+    },
+    "data_sharing": {
+      "type": "boolean"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["id", "email", "data_sharing", "created_at"],
+  "additionalProperties": false
+}

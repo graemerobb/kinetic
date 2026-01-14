@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Consultation",
+  "type": "object",
+  "$id": "https://example.com/schemas/consultation.json",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique consultation identifier"
+    },
+    "clinic_id": {
+      "type": "string",
+      "description": "References Clinic.id"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "References Patient.id"
+    },
+    "consultation_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "clinician_name": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": ["id", "clinic_id", "patient_id", "clinician_name", "notes", "consultation_date"],
+  "additionalProperties": false
+}

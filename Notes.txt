@@ -1,0 +1,28 @@
+Create clinic 1 opt out
+Clinic 1 welcome page, we are an opt out clinic
+Clinic 1 create patient A
+Clinic 1 Create consultation, with notes
+Clinic 1 Show notes
+
+Create clinic 2 opt in
+Clinic 2 welcome page, we are an opt in clinic - here's why you should come here
+Clinic 2 create patient B
+Clinic 2 create consultation, with notes
+
+Create clinic 3 opt in
+Patient B moves house to clinic 3
+Clinic 3 create patient B
+Import consultation with notes
+Clinic 3 view redacted consutlation notes
+
+Patient B tells the story to Patient A, who doesnt like that clinic 1 is opt out
+Patient A goes to clinic 2, 
+Clinic 2 create patient A
+Clinic 2 request data from Clinic 1
+
+Clinic 1 receive request - Approve regect
+Clinic 2 Redacted data shared
+Clinic 1 view redacted data
+Clinic 2 token balance ++
+
+Clinic 2 spend token
