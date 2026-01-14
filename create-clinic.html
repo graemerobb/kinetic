@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome to Kinetic</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>Welcome to Kinetic</h1>
+      <p class="subtitle">Create your clinic profile to get started.</p>
+    </header>
+
+    <section class="card">
+      <form id="clinicForm" novalidate>
+        <div class="grid">
+          <div class="field">
+            <label for="clinicId">Clinic ID <span class="req">*</span></label>
+            <input
+              id="clinicId"
+              name="id"
+              type="text"
+              placeholder="e.g. cln_001"
+              autocomplete="off"
+              required
+            />
+            <div class="help">Unique clinic identifier.</div>
+            <div class="error" data-error-for="id"></div>
+          </div>
+
+          <div class="field">
+            <label for="email">Email <span class="req">*</span></label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="clinic@example.com"
+              autocomplete="email"
+              required
+            />
+            <div class="help">We’ll use this for account and notifications.</div>
+            <div class="error" data-error-for="email"></div>
+          </div>
+
+          <div class="field">
+            <label for="dataSharing">Data sharing enabled? <span class="req">*</span></label>
+            <select id="dataSharing" name="data_sharing" required>
+              <option value="" selected disabled>Select an option</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+            <div class="help">Controls whether your clinic participates in data sharing.</div>
+            <div class="error" data-error-for="data_sharing"></div>
+          </div>
+
+          <div class="field">
+            <label for="createdAt">Created at <span class="req">*</span></label>
+            <input
+              id="createdAt"
+              name="created_at"
+              type="datetime-local"
+              required
+            />
+            <div class="help">Auto-filled; you can adjust if needed.</div>
+            <div class="error" data-error-for="created_at"></div>
+          </div>
+
+          <!-- Optional fields (still captured, but not required by schema) -->
+          <div class="field">
+            <label for="speciality">Speciality</label>
+            <input
+              id="speciality"
+              name="speciality"
+              type="text"
+              placeholder="e.g. General Practice, Physio"
+            />
+            <div class="error" data-error-for="speciality"></div>
+          </div>
+
+          <div class="field">
+            <label for="address">Address</label>
+            <input
+              id="address"
+              name="address"
+              type="text"
+              placeholder="Street, suburb, state"
+              autocomplete="street-address"
+            />
+            <div class="error" data-error-for="address"></div>
+          </div>
+
+          <div class="field">
+            <label for="dataSharingTokens">Data sharing tokens</label>
+            <input
+              id="dataSharingTokens"
+              name="data_sharing_tokens"
+              type="number"
+              min="0"
+              step="1"
+              placeholder="0"
+            />
+            <div class="help">Optional for now; later you can enforce rules server-side.</div>
+            <div class="error" data-error-for="data_sharing_tokens"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn primary">Create clinic</button>
+          <button type="button" id="resetBtn" class="btn">Reset</button>
+        </div>
+
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+
+        <details class="debug">
+          <summary>Debug: last saved clinic JSON</summary>
+          <pre id="debugOutput">{}</pre>
+        </details>
+      </form>
+    </section>
+
+    <footer class="footer">
+      <p class="muted">Database integration coming next. For now this saves locally in your browser.</p>
+    </footer>
+  </main>
+
+  <script src="create-clinic.js"></script>
+</body>
+</html>
