@@ -31,10 +31,15 @@ export async function getClinic(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const clinicId =
-      request.query.get("id") ??
-      (await request.json().catch(() => ({} as any)))?.id;
+    type ClinicRequestBody = {
+        id?: string;
+    };
 
+    const body = (await request.json().catch(() => null)) as ClinicRequestBody | null;
+
+    const clinicId =
+        request.query.get("id") ??
+        body?.id;
     if (!clinicId) {
       return {
         status: 400,
