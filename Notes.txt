@@ -5,6 +5,13 @@ Clinic 1 Create consultation, with notes
 Clinic 1 Show notes
 Database integration 
 
+client id
+a42f6aa3-fd08-4057-a976-78858f894f4e
+AZURE_CLIENT_ID
+tenant id
+890e4de1-5a9c-47f5-90be-81c333a89faf
+AZURE_TENANT_ID
+
 Create clinic 2 opt in
 Clinic 2 welcome page, we are an opt in clinic - here's why you should come here
 Clinic 2 create patient B
