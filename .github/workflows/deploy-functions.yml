@@ -23,6 +23,15 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           
+      - name: Find the Function App in this subscription
+        run: |
+          az account show -o table
+          echo "---- Function Apps ----"
+          az functionapp list --query "[].{name:name, rg:resourceGroup, location:location, state:state}" -o table
+          echo "---- Web Apps (sites) containing 'kinetic' ----"
+          az resource list --resource-type Microsoft.Web/sites --query "[?contains(name,'kinetic')].{name:name, rg:resourceGroup, kind:kind}" -o table
+
+          
       - name: Verify Azure context
         run: |
           az account show
