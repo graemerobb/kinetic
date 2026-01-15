@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create Patient</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="theme-patient">
+  <main class="container">
+    <header class="header">
+      <h1>Create Patient</h1>
+      <p class="subtitle">
+        Add a patient within clinic: <span id="clinicLabel" class="pill">Loading…</span>
+      </p>
+    </header>
+
+    <section class="card">
+      <form id="patientForm" novalidate>
+        <div class="grid">
+          <div class="field">
+            <label for="patientId">Patient ID <span class="req">*</span></label>
+            <input
+              id="patientId"
+              name="id"
+              type="text"
+              placeholder="e.g. pat_001"
+              autocomplete="off"
+              required
+            />
+            <div class="help">Unique patient identifier.</div>
+            <div class="error" data-error-for="id"></div>
+          </div>
+
+          <div class="field">
+            <label for="email">Email <span class="req">*</span></label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="patient@example.com"
+              autocomplete="email"
+              required
+            />
+            <div class="error" data-error-for="email"></div>
+          </div>
+
+          <div class="field">
+            <label for="address">Address</label>
+            <input
+              id="address"
+              name="address"
+              type="text"
+              placeholder="Street, suburb, state"
+              autocomplete="street-address"
+            />
+            <div class="error" data-error-for="address"></div>
+          </div>
+
+          <div class="field">
+            <label for="createdAt">Created at <span class="req">*</span></label>
+            <input
+              id="createdAt"
+              name="created_at"
+              type="datetime-local"
+              required
+            />
+            <div class="help">Auto-filled; you can adjust if needed.</div>
+            <div class="error" data-error-for="created_at"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn primary">Save patient</button>
+          <button type="button" id="resetBtn" class="btn">Reset</button>
+        </div>
+
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+
+        <details class="debug">
+          <summary>Debug: last saved patient JSON</summary>
+          <pre id="debugOutput">{}</pre>
+        </details>
+      </form>
+    </section>
+
+    <footer class="footer">
+      <p class="muted">
+        Tip: bookmark URLs like <code>create-patient.html?clinic_id=cln_001</code>
+      </p>
+    </footer>
+  </main>
+
+  <script src="create-patient.js"></script>
+</body>
+</html>

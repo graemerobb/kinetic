@@ -3,6 +3,7 @@ Clinic 1 welcome page, we are an opt out clinic
 Clinic 1 create patient A
 Clinic 1 Create consultation, with notes
 Clinic 1 Show notes
+Database integration 
 
 Create clinic 2 opt in
 Clinic 2 welcome page, we are an opt in clinic - here's why you should come here
