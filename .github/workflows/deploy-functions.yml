@@ -22,7 +22,7 @@ jobs:
       - name: Install and build
         working-directory: api
         run: |
-          npm ci
+          npm install
           npm run build
 
       - name: Deploy
