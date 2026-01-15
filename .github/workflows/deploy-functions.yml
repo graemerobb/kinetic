@@ -38,4 +38,5 @@ jobs:
         uses: Azure/functions-action@v1
         with:
           app-name: kinetic-api
+          resource-group: Kinetic_rg
           package: ./api
