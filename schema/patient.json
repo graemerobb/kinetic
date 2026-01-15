@@ -7,6 +7,10 @@
       "type": "string",
       "description": "Unique patient identifier"
     },
+     "clinic_id": {
+      "type": "string",
+      "description": "References Clinic.id"
+    },
     "email": {
       "type": "string",
       "format": "email"
@@ -19,6 +23,6 @@
       "format": "date-time"
     }
   },
-  "required": ["id", "email", "created_at"],
+  "required": ["id", "clinic_id", "email", "created_at"],
   "additionalProperties": false
 }
