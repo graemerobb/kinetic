@@ -31,7 +31,17 @@ export async function createClinic(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const body = await request.json();
+    type ClinicCreate = {
+      id: string;
+      email: string;
+      speciality?: string | null;
+      address?: string | null;
+      data_sharing_tokens?: number | null;
+      data_sharing: boolean;
+      created_at: string; // ISO string
+    };
+
+    const body = (await request.json()) as Partial<ClinicCreate>;
 
     const {
       id,
@@ -44,11 +54,9 @@ export async function createClinic(
     } = body;
 
     if (!id || !email || data_sharing === undefined || !created_at) {
-      return {
-        status: 400,
-        jsonBody: { error: "Missing required fields" }
-      };
+      return { status: 400, jsonBody: { error: "Missing required fields" } };
     }
+
 
     const pool = await getSqlPool();
 
