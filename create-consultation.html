@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create Consultation</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="theme-patient">
+  <main class="container">
+    <header class="header">
+      <h1>Create Consultation</h1>
+      <p class="subtitle">
+        Clinic: <span id="clinicLabel" class="pill">Loading…</span>
+        &nbsp;•&nbsp;
+        Patient: <span id="patientLabel" class="pill">Loading…</span>
+      </p>
+    </header>
+
+    <section class="card">
+      <form id="consultForm" novalidate>
+        <div class="grid">
+          <div class="field">
+            <label for="consultId">Consultation ID <span class="req">*</span></label>
+            <input
+              id="consultId"
+              name="id"
+              type="text"
+              placeholder="e.g. con_001"
+              autocomplete="off"
+              required
+            />
+            <div class="help">Unique consultation identifier.</div>
+            <div class="error" data-error-for="id"></div>
+          </div>
+
+          <div class="field">
+            <label for="clinicId">Clinic ID <span class="req">*</span></label>
+            <input
+              id="clinicId"
+              name="clinic_id"
+              type="text"
+              placeholder="e.g. cln_001"
+              required
+            />
+            <div class="help">References Clinic.id</div>
+            <div class="error" data-error-for="clinic_id"></div>
+          </div>
+
+          <div class="field">
+            <label for="patientId">Patient ID <span class="req">*</span></label>
+            <input
+              id="patientId"
+              name="patient_id"
+              type="text"
+              placeholder="e.g. pat_001"
+              required
+            />
+            <div class="help">References Patient.id</div>
+            <div class="error" data-error-for="patient_id"></div>
+          </div>
+
+          <div class="field">
+            <label for="consultDate">Consultation date <span class="req">*</span></label>
+            <input
+              id="consultDate"
+              name="consultation_date"
+              type="datetime-local"
+              required
+            />
+            <div class="help">Auto-filled; adjust if needed.</div>
+            <div class="error" data-error-for="consultation_date"></div>
+          </div>
+
+          <div class="field">
+            <label for="clinicianName">Clinician name <span class="req">*</span></label>
+            <input
+              id="clinicianName"
+              name="clinician_name"
+              type="text"
+              placeholder="e.g. Dr Smith"
+              required
+            />
+            <div class="error" data-error-for="clinician_name"></div>
+          </div>
+
+          <!-- Spacer cell to keep grid balanced on wide screens -->
+          <div class="field">
+            <label class="muted"> </label>
+            <div class="help"> </div>
+          </div>
+
+          <!-- Notes spans full width -->
+          <div class="field notes-span">
+            <label for="notes">Notes <span class="req">*</span></label>
+            <textarea
+              id="notes"
+              name="notes"
+              placeholder="Write consultation notes here..."
+              required
+            ></textarea>
+            <div class="help">Large notes area (required by schema).</div>
+            <div class="error" data-error-for="notes"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn primary">Save consultation</button>
+          <button type="button" id="resetBtn" class="btn">Reset</button>
+        </div>
+
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+
+        <details class="debug">
+          <summary>Debug: last saved consultation JSON</summary>
+          <pre id="debugOutput">{}</pre>
+        </details>
+      </form>
+    </section>
+
+    <footer class="footer">
+      <p class="muted">
+        Tip: bookmark URLs like
+        <code>create-consultation.html?clinic_id=cln_001&amp;patient_id=pat_001</code>
+      </p>
+    </footer>
+  </main>
+
+  <script src="create-consultation.js"></script>
+</body>
+</html>
