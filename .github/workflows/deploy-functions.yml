@@ -56,6 +56,11 @@ jobs:
           echo "API src contents:" && ls -la api/src || true
           echo "API dist contents:" && ls -la api/dist || true
 
+      - name: Debug find function.json
+        run: |
+          echo "function.json under api:"
+          find api -name "function.json" -print || true
+
       - name: Debug find function.json and compiled JS
         run: |
           echo "Searching for function.json:" 
