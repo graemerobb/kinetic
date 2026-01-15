@@ -37,6 +37,6 @@ jobs:
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
-          app-name: kinetic-apiwww
+          app-name: kinetic-api-bxdaadd8bpgvhsdz
           resource-group: Kinetic_rg
           package: ./api
