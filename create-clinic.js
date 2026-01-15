@@ -4,27 +4,36 @@
   const debugEl = document.getElementById("debugOutput");
   const resetBtn = document.getElementById("resetBtn");
 
-  // Auto-fill created_at with "now" (local time) for datetime-local
   const createdAtInput = document.getElementById("createdAt");
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  // Querystring: create-clinic.html?id=cln_001
+  const qs = new URLSearchParams(window.location.search);
+  const idFromUrl = (qs.get("id") || "").trim();
+
+  // Default created_at to now when creating new
   if (createdAtInput && !createdAtInput.value) {
     createdAtInput.value = toDatetimeLocalValue(new Date());
   }
 
-  // Load last saved clinic (if any)
-  const existing = safeParse(localStorage.getItem("kinetic_clinic"));
-  if (existing) {
-    debugEl.textContent = JSON.stringify(existing, null, 2);
+  // If id is provided, load clinic and populate
+  if (idFromUrl) {
+    loadClinic(idFromUrl);
+  } else {
+    setModeCreate();
   }
 
   resetBtn.addEventListener("click", () => {
     form.reset();
     clearErrors();
     setStatus("");
-    // re-set created_at after reset
+    // If we were loaded via ?id=, restore that ID; otherwise empty
+    document.getElementById("clinicId").value = idFromUrl || "";
     createdAtInput.value = toDatetimeLocalValue(new Date());
+    if (idFromUrl) loadClinic(idFromUrl);
   });
 
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     clearErrors();
 
@@ -37,34 +46,131 @@
       return;
     }
 
-    // Save locally for now (placeholder for DB/API integration later)
-    localStorage.setItem("kinetic_clinic", JSON.stringify(clinic));
-    debugEl.textContent = JSON.stringify(clinic, null, 2);
+    setBusy(true);
+    try {
+      const resp = await fetch(`/api/create-clinic`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(clinic)
+      });
 
-    setStatus("Clinic saved locally ✔ (DB integration later).", "ok");
+      const data = await safeJson(resp);
+
+      if (!resp.ok) {
+        setStatus(`Save failed: ${data?.error || resp.statusText}`, "bad");
+        // optional: show detail in debug
+        debugEl.textContent = JSON.stringify(data || { status: resp.status }, null, 2);
+        return;
+      }
+
+      setStatus("Clinic saved ✔", "ok");
+      debugEl.textContent = JSON.stringify(data, null, 2);
+
+      // After create, set URL param so refresh loads it
+      if (!idFromUrl && clinic.id) {
+        const newUrl = `${window.location.pathname}?id=${encodeURIComponent(clinic.id)}`;
+        window.history.replaceState({}, "", newUrl);
+      }
+
+    } catch (err) {
+      setStatus(`Save failed: ${err.message || err}`, "bad");
+    } finally {
+      setBusy(false);
+    }
   });
+
+  async function loadClinic(clinicId) {
+    setModeLoading(clinicId);
+    setBusy(true);
+
+    try {
+      const resp = await fetch(`/api/get-clinic?id=${encodeURIComponent(clinicId)}`, {
+        method: "GET",
+        headers: { "Accept": "application/json" }
+      });
+
+      const data = await safeJson(resp);
+
+      if (resp.status === 404) {
+        setModeCreate();
+        document.getElementById("clinicId").value = clinicId; // keep what user asked for
+        setStatus("Clinic not found. You can create it now.", "bad");
+        debugEl.textContent = JSON.stringify(data, null, 2);
+        return;
+      }
+
+      if (!resp.ok) {
+        setStatus(`Load failed: ${data?.error || resp.statusText}`, "bad");
+        debugEl.textContent = JSON.stringify(data || { status: resp.status }, null, 2);
+        setModeCreate();
+        return;
+      }
+
+      populateClinicForm(data);
+      setModeEdit();
+      setStatus("Clinic loaded.", "ok");
+      debugEl.textContent = JSON.stringify(data, null, 2);
+
+    } catch (err) {
+      setStatus(`Load failed: ${err.message || err}`, "bad");
+      setModeCreate();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function populateClinicForm(clinic) {
+    document.getElementById("clinicId").value = clinic.id ?? "";
+    document.getElementById("email").value = clinic.email ?? "";
+    document.getElementById("speciality").value = clinic.speciality ?? "";
+    document.getElementById("address").value = clinic.address ?? "";
+    document.getElementById("dataSharingTokens").value =
+      clinic.data_sharing_tokens !== null && clinic.data_sharing_tokens !== undefined
+        ? String(clinic.data_sharing_tokens)
+        : "";
+
+    // boolean -> select
+    document.getElementById("dataSharing").value = String(!!clinic.data_sharing);
+
+    // ISO -> datetime-local
+    if (clinic.created_at) {
+      createdAtInput.value = toDatetimeLocalValue(new Date(clinic.created_at));
+    }
+  }
+
+  function setModeCreate() {
+    submitBtn.textContent = "Create clinic";
+  }
+
+  function setModeEdit() {
+    submitBtn.textContent = "Update clinic";
+  }
+
+  function setModeLoading(clinicId) {
+    submitBtn.textContent = `Loading ${clinicId}…`;
+  }
+
+  function setBusy(isBusy) {
+    submitBtn.disabled = isBusy;
+    resetBtn.disabled = isBusy;
+  }
 
   function getClinicFromForm() {
     const id = form.elements["id"].value.trim();
     const email = form.elements["email"].value.trim();
     const speciality = form.elements["speciality"].value.trim();
     const address = form.elements["address"].value.trim();
-
     const tokensRaw = form.elements["data_sharing_tokens"].value;
     const dataSharingRaw = form.elements["data_sharing"].value;
-
-    const createdAtRaw = form.elements["created_at"].value; // datetime-local string
+    const createdAtRaw = form.elements["created_at"].value;
 
     return {
       id,
       email,
-      // optional fields only included if non-empty (keeps objects tidy)
       ...(speciality ? { speciality } : {}),
       ...(address ? { address } : {}),
       ...(tokensRaw !== "" ? { data_sharing_tokens: Number(tokensRaw) } : {}),
-      // required field:
       data_sharing: dataSharingRaw === "true",
-      // required field:
       created_at: createdAtRaw ? new Date(createdAtRaw).toISOString() : ""
     };
   }
@@ -72,31 +178,25 @@
   function validateClinic(clinic) {
     const errs = [];
 
-    // required: id
     if (!clinic.id) errs.push({ field: "id", message: "Clinic ID is required." });
 
-    // required: email (and format)
     if (!clinic.email) {
       errs.push({ field: "email", message: "Email is required." });
     } else if (!isValidEmail(clinic.email)) {
       errs.push({ field: "email", message: "Please enter a valid email address." });
     }
 
-    // required: data_sharing (must be explicitly chosen)
-    // because boolean defaults can hide missing selection, we validate the select directly
     const dsSelect = form.elements["data_sharing"].value;
     if (dsSelect !== "true" && dsSelect !== "false") {
       errs.push({ field: "data_sharing", message: "Please select Yes or No." });
     }
 
-    // required: created_at (must be set)
     if (!clinic.created_at) {
       errs.push({ field: "created_at", message: "Created at is required." });
     } else if (Number.isNaN(Date.parse(clinic.created_at))) {
       errs.push({ field: "created_at", message: "Created at must be a valid date/time." });
     }
 
-    // optional: data_sharing_tokens integer (if present)
     if (clinic.data_sharing_tokens !== undefined) {
       if (!Number.isInteger(clinic.data_sharing_tokens)) {
         errs.push({ field: "data_sharing_tokens", message: "Tokens must be an integer." });
@@ -124,7 +224,6 @@
   }
 
   function isValidEmail(email) {
-    // Simple pragmatic email check
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
@@ -138,7 +237,11 @@
     return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
   }
 
-  function safeParse(s) {
-    try { return s ? JSON.parse(s) : null; } catch { return null; }
+  async function safeJson(resp) {
+    try {
+      return await resp.json();
+    } catch {
+      return null;
+    }
   }
 })();
