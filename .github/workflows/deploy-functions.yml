@@ -48,7 +48,7 @@ jobs:
           npm install
           npm run build
 
-      - name: Debug: show api folder tree (top)
+      - name: Debug show api folder tree (top)
         run: |
           echo "PWD:" && pwd
           echo "Repo root contents:" && ls -la
@@ -56,7 +56,7 @@ jobs:
           echo "API src contents:" && ls -la api/src || true
           echo "API dist contents:" && ls -la api/dist || true
 
-      - name: Debug: find function.json and compiled JS
+      - name: Debug find function.json and compiled JS
         run: |
           echo "Searching for function.json:" 
           find api -maxdepth 6 -name "function.json" -print || true
@@ -65,7 +65,7 @@ jobs:
           echo "Searching for any JS files under api:" 
           find api -maxdepth 6 -type f -name "*.js" -print || true
 
-      - name: Debug: show package.json main + scripts
+      - name: Debug show package.json main + scripts
         run: |
           echo "api/package.json:"
           cat api/package.json
