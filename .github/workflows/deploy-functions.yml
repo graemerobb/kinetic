@@ -27,8 +27,8 @@ jobs:
         run: |
           az account show -o table
           echo "---- Function Apps ----"
-          az functionapp list --query "[].{name:name, rg:resourceGroup, location:location, state:state}" -o table
-          echo "---- Web Apps (sites) containing 'kinetic' ----"
+          az functionapp list -o table
+          echo "---- Web Apps (sites) ----"
           az resource list --resource-type Microsoft.Web/sites --query "[?contains(name,'kinetic')].{name:name, rg:resourceGroup, kind:kind}" -o table
 
           
@@ -52,5 +52,4 @@ jobs:
         uses: Azure/functions-action@v1
         with:
           app-name: kinetic-api
-          resource-group: Kinetic_rg
           package: ./api
