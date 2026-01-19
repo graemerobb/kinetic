@@ -1,0 +1,130 @@
+id: /subscriptions/ec62b1d8-d09a-442e-9851-d57c2ad81095/resourceGroups/Kinetic_rg/providers/Microsoft.App/containerapps/kineticdb-server
+identity:
+  type: None
+location: Australia East
+name: kineticdb-server
+properties:
+  configuration:
+    activeRevisionsMode: Single
+    dapr: null
+    identitySettings: []
+    ingress:
+      additionalPortMappings: null
+      allowInsecure: false
+      clientCertificateMode: null
+      corsPolicy: null
+      customDomains: null
+      exposedPort: 0
+      external: true
+      fqdn: kineticdb-server.whiteforest-faf38794.australiaeast.azurecontainerapps.io
+      ipSecurityRestrictions: null
+      stickySessions: null
+      targetPort: 5000
+      traffic:
+      - latestRevision: true
+        weight: 100
+      transport: Auto
+    maxInactiveRevisions: 100
+    registries: null
+    runtime: null
+    secrets:
+    - name: mssql-connection-string
+    - name: dab-config-base64
+    service: null
+  customDomainVerificationId: 541DF4C103F7A2F952F369124514F944776D68F0A77856AC7CFB547429572CCD
+  delegatedIdentities: []
+  environmentId: /subscriptions/ec62b1d8-d09a-442e-9851-d57c2ad81095/resourceGroups/Kinetic_rg/providers/Microsoft.App/managedEnvironments/kineticdb-env
+  eventStreamEndpoint: https://australiaeast.azurecontainerapps.dev/subscriptions/ec62b1d8-d09a-442e-9851-d57c2ad81095/resourceGroups/Kinetic_rg/containerApps/kineticdb-server/eventstream
+  latestReadyRevisionName: kineticdb-server--ybyo9c8
+  latestRevisionFqdn: kineticdb-server--ybyo9c8.whiteforest-faf38794.australiaeast.azurecontainerapps.io
+  latestRevisionName: kineticdb-server--ybyo9c8
+  managedEnvironmentId: /subscriptions/ec62b1d8-d09a-442e-9851-d57c2ad81095/resourceGroups/Kinetic_rg/providers/Microsoft.App/managedEnvironments/kineticdb-env
+  outboundIpAddresses:
+  - 20.227.4.70
+  - 20.227.4.57
+  - 4.237.187.120
+  - 20.167.19.2
+  - 4.254.25.176
+  - 20.227.69.22
+  - 20.227.101.87
+  - 4.254.45.25
+  - 20.167.107.223
+  - 4.254.68.189
+  - 4.200.63.136
+  - 4.237.252.211
+  - 20.227.4.60
+  - 4.254.104.192
+  - 4.254.7.59
+  - 4.237.151.212
+  - 20.227.4.52
+  - 20.11.108.13
+  - 20.11.108.40
+  - 20.11.107.220
+  - 20.11.107.247
+  - 20.11.107.106
+  - 20.11.108.46
+  - 20.92.129.121
+  - 20.53.190.131
+  - 4.237.240.85
+  - 20.227.106.31
+  - 4.254.34.254
+  - 4.254.99.26
+  - 4.254.80.186
+  - 4.237.200.41
+  - 4.237.254.48
+  - 4.198.0.55
+  - 4.237.250.197
+  - 4.200.103.209
+  - 20.53.190.243
+  - 20.227.117.222
+  - 20.92.129.47
+  - 20.53.142.228
+  - 20.53.137.166
+  - 20.53.136.251
+  - 20.53.137.23
+  - 20.53.136.177
+  - 20.53.139.235
+  - 4.237.218.165
+  provisioningState: Succeeded
+  runningStatus: Running
+  template:
+    containers:
+    - env:
+      - name: MSSQL_CONNECTION_STRING
+        secretRef: mssql-connection-string
+      - name: DAB_CONFIG_BASE64
+        secretRef: dab-config-base64
+      image: mcr.microsoft.com/azure-databases/data-api-builder:1.7.83-rc
+      name: kineticdb-server
+      command:
+        - /bin/sh
+      args:
+        - -lc
+        - >
+          echo "$DAB_CONFIG_BASE64" | base64 -d > /App/dab-config.json &&
+          exec dotnet /App/Azure.DataApiBuilder.Service.dll --ConfigFileName /App/dab-config.json
+      resources:
+        cpu: 0.5
+        ephemeralStorage: 2Gi
+        memory: 1Gi
+    initContainers: null
+    revisionSuffix: ''
+    scale:
+      cooldownPeriod: 300
+      maxReplicas: 3
+      minReplicas: 1
+      pollingInterval: 30
+      rules: null
+    serviceBinds: null
+    terminationGracePeriodSeconds: null
+    volumes: null
+  workloadProfileName: Consumption
+resourceGroup: Kinetic_rg
+systemData:
+  createdAt: '2026-01-19T04:41:56.6650649'
+  createdBy: graeme.robb@gmail.com
+  createdByType: User
+  lastModifiedAt: '2026-01-19T04:41:56.6650649'
+  lastModifiedBy: graeme.robb@gmail.com
+  lastModifiedByType: User
+type: Microsoft.App/containerApps

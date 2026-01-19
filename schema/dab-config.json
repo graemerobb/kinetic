@@ -1,0 +1,270 @@
+dab add Clinics --source dbo.Clinics --permissions "anonymous:read,create,update,delete" --description "Details for the clinicClinics (practices) using the system. Stores clinic contact details, data-sharing settings, and creation timestamp."
+dab add Patients --source dbo.Patients --permissions "anonymous:read,create,update,delete" --description "Patients belonging to a clinic. Each patient is scoped to one clinic via clinic_id."
+dab add Consultations --source dbo.Consultations --permissions "anonymous:read,create,update,delete" --description "Consultations linking a clinic and patient. Includes consultation date, clinician name, and free-text notes."
+
+dab update Clinics --feilds.name --fields.description --feilds.primary-key true
+
+
+
+dab update Clinics --fields.name id --fields.description "Clinic unique identifier (NVARCHAR(64)). Primary key." --fields.primary-key true
+dab update Clinics --fields.name email --fields.description "Primary clinic contact email address (required, NVARCHAR(256))."
+dab update Clinics --fields.name speciality --fields.description "Clinic specialty/discipline (optional, NVARCHAR(256))."
+dab update Clinics --fields.name address --fields.description "Clinic address (optional, NVARCHAR(512))."
+dab update Clinics --fields.name data_sharing_tokens --fields.description "Optional token/credit count used for data sharing features (INT, nullable)."
+dab update Clinics --fields.name data_sharing --fields.description "Data sharing enabled flag (BIT, required). True means the clinic has opted into data sharing."
+dab update Clinics --fields.name created_at --fields.description "Record creation timestamp (DATETIME2, required)."
+
+
+dab update Patients --fields.name id --fields.description "Patient unique identifier (NVARCHAR(64)). Primary key." --fields.primary-key true
+dab update Patients --fields.name clinic_id --fields.description "Owning clinic ID (NVARCHAR(64), required). Foreign key to Clinics.id."
+dab update Patients --fields.name email --fields.description "Patient email address (required, NVARCHAR(256))."
+dab update Patients --fields.name address --fields.description "Patient address (optional, NVARCHAR(512))."
+dab update Patients --fields.name created_at --fields.description "Record creation timestamp (DATETIME2, required)."
+
+
+dab update Consultations --fields.name id --fields.description "Consultation unique identifier (NVARCHAR(64)). Primary key." --fields.primary-key true
+dab update Consultations --fields.name clinic_id --fields.description "Clinic ID for the consultation (NVARCHAR(64), required). Foreign key to Clinics.id."
+dab update Consultations --fields.name patient_id --fields.description "Patient ID for the consultation (NVARCHAR(64), required). Foreign key to Patients.id."
+dab update Consultations --fields.name consultation_date --fields.description "Consultation timestamp (DATETIME2, required)."
+dab update Consultations --fields.name clinician_name --fields.description "Name of the clinician who performed the consultation (NVARCHAR(256), required)."
+dab update Consultations --fields.name notes --fields.description "Free-text clinical notes (NVARCHAR(MAX), required). Potentially sensitive content."
+
+{
+  "$schema": "https://github.com/Azure/data-api-builder/releases/download/v1.7.83/dab.draft.schema.json",
+  "data-source": {
+    "database-type": "mssql",
+    "connection-string": "@env('MSSQL_CONNECTION_STRING')"
+  },
+  "runtime": {
+    "rest": {
+      "enabled": true,
+      "path": "/api",
+      "request-body-strict": true
+    },
+    "graphql": {
+      "enabled": true,
+      "path": "/graphql",
+      "allow-introspection": true
+    },
+    "mcp": {
+      "enabled": true,
+      "path": "/mcp"
+    },
+    "host": {
+      "cors": {
+        "origins": [],
+        "allow-credentials": false
+      },
+      "authentication": {
+        "provider": "StaticWebApps"
+      },
+      "mode": "production"
+    }
+  },
+  "entities": {
+    "Clinics": {
+      "description": "Details for the clinicClinics (practices) using the system. Stores clinic contact details, data-sharing settings, and creation timestamp.",
+      "source": {
+        "object": "dbo.Clinics",
+        "type": "table"
+      },
+      "fields": [
+        {
+          "name": "id",
+          "description": "Clinic unique identifier (NVARCHAR(64)). Primary key.",
+          "primary-key": true
+        },
+        {
+          "name": "email",
+          "description": "Primary clinic contact email address (required",
+          "primary-key": false
+        },
+        {
+          "name": "speciality",
+          "description": "Clinic specialty/discipline (optional",
+          "primary-key": false
+        },
+        {
+          "name": "address",
+          "description": "Clinic address (optional",
+          "primary-key": false
+        },
+        {
+          "name": "data_sharing_tokens",
+          "description": "Optional token/credit count used for data sharing features (INT",
+          "primary-key": false
+        },
+        {
+          "name": "data_sharing",
+          "description": "Data sharing enabled flag (BIT",
+          "primary-key": false
+        },
+        {
+          "name": "created_at",
+          "description": "Record creation timestamp (DATETIME2",
+          "primary-key": false
+        }
+      ],
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "Clinics",
+          "plural": "Clinics"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "read"
+            },
+            {
+              "action": "create"
+            },
+            {
+              "action": "update"
+            },
+            {
+              "action": "delete"
+            }
+          ]
+        }
+      ]
+    },
+    "Patients": {
+      "description": "Patients belonging to a clinic. Each patient is scoped to one clinic via clinic_id.",
+      "source": {
+        "object": "dbo.Patients",
+        "type": "table"
+      },
+      "fields": [
+        {
+          "name": "id",
+          "description": "Patient unique identifier (NVARCHAR(64)). Primary key.",
+          "primary-key": true
+        },
+        {
+          "name": "clinic_id",
+          "description": "Owning clinic ID (NVARCHAR(64)",
+          "primary-key": false
+        },
+        {
+          "name": "email",
+          "description": "Patient email address (required",
+          "primary-key": false
+        },
+        {
+          "name": "address",
+          "description": "Patient address (optional",
+          "primary-key": false
+        },
+        {
+          "name": "created_at",
+          "description": "Record creation timestamp (DATETIME2",
+          "primary-key": false
+        }
+      ],
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "Patients",
+          "plural": "Patients"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "read"
+            },
+            {
+              "action": "create"
+            },
+            {
+              "action": "update"
+            },
+            {
+              "action": "delete"
+            }
+          ]
+        }
+      ]
+    },
+    "Consultations": {
+      "description": "Consultations linking a clinic and patient. Includes consultation date, clinician name, and free-text notes.",
+      "source": {
+        "object": "dbo.Consultations",
+        "type": "table"
+      },
+      "fields": [
+        {
+          "name": "id",
+          "description": "Consultation unique identifier (NVARCHAR(64)). Primary key.",
+          "primary-key": true
+        },
+        {
+          "name": "clinic_id",
+          "description": "Clinic ID for the consultation (NVARCHAR(64)",
+          "primary-key": false
+        },
+        {
+          "name": "patient_id",
+          "description": "Patient ID for the consultation (NVARCHAR(64)",
+          "primary-key": false
+        },
+        {
+          "name": "consultation_date",
+          "description": "Consultation timestamp (DATETIME2",
+          "primary-key": false
+        },
+        {
+          "name": "clinician_name",
+          "description": "Name of the clinician who performed the consultation (NVARCHAR(256)",
+          "primary-key": false
+        },
+        {
+          "name": "notes",
+          "description": "Free-text clinical notes (NVARCHAR(MAX)",
+          "primary-key": false
+        }
+      ],
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "Consultations",
+          "plural": "Consultations"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "read"
+            },
+            {
+              "action": "create"
+            },
+            {
+              "action": "update"
+            },
+            {
+              "action": "delete"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
