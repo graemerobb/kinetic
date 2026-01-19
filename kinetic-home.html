@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kinetic - Clinic Console</title>
+  <style>
+    :root{
+      --bg: #0b1220;
+      --panel: #0f1b2f;
+      --panel-2: #0c1628;
+      --border: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --muted-2: rgba(255,255,255,.55);
+      --focus: rgba(255,255,255,.18);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 14px;
+      --gap: 16px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    * { box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(255,255,255,.10), transparent 60%),
+                  radial-gradient(900px 400px at 80% 0%, rgba(255,255,255,.07), transparent 55%),
+                  var(--bg);
+    }
+
+    .page{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: var(--gap);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--gap);
+      padding: 18px 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+    }
+
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .logo{
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.04));
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+
+    /* If you swap to an <img>, this keeps it neat */
+    .logo img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .title-wrap{
+      min-width: 0;
+    }
+
+    h1{
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: .2px;
+      line-height: 1.2;
+    }
+
+    .subtitle{
+      margin: 4px 0 0 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .header-actions{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill{
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      padding: 8px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* Clinic info strip */
+    .clinic-info{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.03);
+      box-shadow: var(--shadow);
+      padding: 14px 14px;
+    }
+
+    .clinic-grid{
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field{
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(0,0,0,.14);
+    }
+
+    .label{
+      font-size: 11px;
+      color: var(--muted-2);
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .value{
+      font-size: 14px;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Main layout: left content + right notifications */
+    .main{
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: var(--gap);
+      align-items: start;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.03);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(255,255,255,.02);
+    }
+
+    .card-title{
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: .2px;
+      margin: 0;
+    }
+
+    /* ClinicContent area */
+    .clinic-content{
+      min-height: 380px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.06));
+    }
+
+    .placeholder{
+      height: 100%;
+      border: 1px dashed rgba(255,255,255,.18);
+      border-radius: 12px;
+      padding: 18px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* Prompt area */
+    .prompt{
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .prompt-label{
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    textarea{
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      padding: 12px 12px;
+      outline: none;
+      line-height: 1.4;
+      font-size: 14px;
+    }
+
+    textarea:focus{
+      border-color: rgba(255,255,255,.22);
+      box-shadow: 0 0 0 4px rgba(255,255,255,.06);
+      background: rgba(0,0,0,.22);
+    }
+
+    .prompt-actions{
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button{
+      appearance: none;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    button:hover{
+      background: rgba(255,255,255,.10);
+    }
+
+    .btn-primary{
+      background: rgba(255,255,255,.14);
+    }
+
+    .btn-primary:hover{
+      background: rgba(255,255,255,.18);
+    }
+
+    /* Notifications panel */
+    .notifications{
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .note{
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.14);
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .note-title{
+      font-size: 13px;
+      margin: 0;
+      color: var(--text);
+    }
+
+    .note-body{
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .badge{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      padding: 6px 10px;
+      border-radius: 999px;
+      width: fit-content;
+    }
+
+    .dot{
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.65);
+      display: inline-block;
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .clinic-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .main{ grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px){
+      .clinic-grid{ grid-template-columns: 1fr; }
+      .header{ flex-direction: column; align-items: flex-start; }
+      .header-actions{ width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="logo" aria-label="Kinetic logo">
+          <!-- Replace this block with: <img src="kinetic-logo.png" alt="Kinetic" /> -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 18L18 6" stroke="rgba(255,255,255,.85)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7.5 6H18V16.5" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="title-wrap">
+          <h1>Welcome to Kinetic</h1>
+          <p class="subtitle">Clinic console</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <span class="pill">Environment: Dev</span>
+        <span class="pill">Status: Connected</span>
+      </div>
+    </header>
+
+    <!-- Clinic Info -->
+    <section class="clinic-info" aria-label="Clinic information">
+      <div class="clinic-grid">
+        <div class="field">
+          <div class="label">Clinic ID</div>
+          <div class="value" id="clinicIdValue">cln_001</div>
+        </div>
+        <div class="field">
+          <div class="label">Email address</div>
+          <div class="value" id="clinicEmailValue">clinic@example.com</div>
+        </div>
+        <div class="field">
+          <div class="label">Speciality</div>
+          <div class="value" id="clinicSpecialityValue">Physiotherapy</div>
+        </div>
+        <div class="field">
+          <div class="label">Address</div>
+          <div class="value" id="clinicAddressValue">123 Example St, Melbourne VIC</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main -->
+    <main class="main">
+
+      <!-- Left column -->
+      <section class="card" aria-label="Clinic content area">
+        <div class="card-header">
+          <p class="card-title">ClinicContent</p>
+          <span class="pill">v0</span>
+        </div>
+
+        <div class="clinic-content" id="clinicContent">
+          <div class="placeholder">
+            <div>
+              <div style="font-size:14px; margin-bottom:6px;">ClinicContent area</div>
+              <div style="font-size:12px; opacity:.85;">Leave blank for now — add widgets / forms later.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="prompt">
+          <p class="prompt-label">Prompt (instruct the agent)</p>
+          <textarea
+            id="agentPrompt"
+            placeholder="e.g. Summarise the clinic profile, check missing fields, and suggest next steps..."
+          ></textarea>
+
+          <div class="prompt-actions">
+            <button class="btn-primary" type="button">Send to agent</button>
+            <button type="button">Clear</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right column: Notifications -->
+      <aside class="card" aria-label="Notifications">
+        <div class="card-header">
+          <p class="card-title">Notifications</p>
+          <span class="badge"><span class="dot"></span> Live</span>
+        </div>
+
+        <div class="notifications">
+          <div class="note">
+            <p class="note-title">Sharing enabled</p>
+            <p class="note-body">This clinic is registered to share data.</p>
+          </div>
+
+          <div class="note">
+            <p class="note-title">Consent status</p>
+            <p class="note-body">No issues detected. Consent records appear up to date.</p>
+          </div>
+
+          <div class="note">
+            <p class="note-title">Next recommended action</p>
+            <p class="note-body">Ask the agent to validate address formatting and confirm speciality taxonomy.</p>
+          </div>
+        </div>
+      </aside>
+
+    </main>
+  </div>
+</body>
+</html>
