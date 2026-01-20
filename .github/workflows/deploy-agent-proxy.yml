@@ -45,18 +45,18 @@ jobs:
           npm install
           npm run build
 
-      - name: Debug show api folder tree (top)
+      - name: Debug show agent-proxy folder tree (top)
         run: |
           echo "PWD:" && pwd
           echo "Repo root contents:" && ls -la
-          echo "API folder contents:" && ls -la api
-          echo "API src contents:" && ls -la api/src || true
-          echo "API dist contents:" && ls -la api/dist || true
+          echo "API folder contents:" && ls -la agent-proxy
+          echo "API src contents:" && ls -la agent-proxy/src || true
+          echo "API dist contents:" && ls -la agent-proxy/dist || true
 
       - name: Debug find function.json
         run: |
-          echo "function.json under api:"
-          find api -name "function.json" -print || true
+          echo "function.json under agent-proxy:"
+          find agent-proxy -name "function.json" -print || true
 
       - name: Debug find function.json and compiled JS
         run: |
