@@ -2,16 +2,25 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { DefaultAzureCredential } from "@azure/identity";
 import { AIProjectClient } from "@azure/ai-projects";
 
+type ProxyRequestBody = {
+  prompt?: string;
+  message?: string;
+};
+
 const credential = new DefaultAzureCredential();
 
-// Prefer env vars so you can change without redeploy
 const projectEndpoint =
   process.env.FOUNDRY_PROJECT_ENDPOINT ??
   "https://agent-training-resource-test.services.ai.azure.com/api/projects/agent-training";
 
-const agentName = process.env.FOUNDRY_AGENT_NAME ?? "kinetic-agent";
+const agentId = process.env.FOUNDRY_AGENT_ID; // <-- REQUIRED (most reliable)
+const agentVersion = process.env.FOUNDRY_AGENT_VERSION; // optional
 
-// Create client once (reused across invocations)
+if (!agentId) {
+  // Fail fast on cold start rather than mysteriously at runtime
+  throw new Error("Missing FOUNDRY_AGENT_ID app setting");
+}
+
 const projectClient = new AIProjectClient(projectEndpoint, credential);
 
 app.http("proxy-messages", {
@@ -25,11 +34,11 @@ export async function proxyMessages(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    // You can accept a prompt from the caller
-    const body = await request.json().catch(() => ({} as any));
-    const prompt: string =
-      body?.prompt ??
-      body?.message ??
+    const body = (await request.json().catch(() => ({}))) as ProxyRequestBody;
+
+    const prompt =
+      body.prompt ??
+      body.message ??
       "What is the size of France in square miles?";
 
     const result = await doProxy(prompt, context);
@@ -44,49 +53,47 @@ export async function proxyMessages(
     };
   } catch (err: any) {
     context.error("Proxy failed", err);
-
     return {
       status: 500,
-      jsonBody: {
-        error: "Proxy failed",
-        detail: err?.message ?? String(err)
-      }
+      jsonBody: { error: "Proxy failed", detail: err?.message ?? String(err) }
     };
   }
 }
 
-async function doProxy(prompt: string, context: InvocationContext): Promise<{ conversationId: string; outputText: string }> {
-  // Retrieve the agent
-  const retrievedAgent = await projectClient.agents.get(agentName);
-
-  context.log(
-    "Retrieved agent:",
-    "name=",
-    retrievedAgent?.name,
-    "id=",
-    retrievedAgent?.id
-  );
-
-  // Get OpenAI client from the project client
-  const openAIClient = await projectClient.getOpenAIClient();
+async function doProxy(
+  prompt: string,
+  context: InvocationContext
+): Promise<{ conversationId: string; outputText: string }> {
+  // Use the Azure OpenAI client provided by the Projects SDK (per your TS error hint)
+  const aoaiClient = await projectClient.getAzureOpenAIClient();
 
   context.log("Creating conversation...");
-  const conversation = await openAIClient.conversations.create({
+  const conversation = await aoaiClient.conversations.create({
     items: [{ type: "message", role: "user", content: prompt }]
   });
 
   context.log("Conversation created:", conversation.id);
 
   context.log("Generating response...");
-  const response = await openAIClient.responses.create(
+  const response = await aoaiClient.responses.create(
     { conversation: conversation.id },
-    { body: { agent: { name: retrievedAgent.name, type: "agent_reference" } } }
+    {
+      body: {
+        agent: agentVersion
+          ? { id: agentId, version: agentVersion, type: "agent_reference" }
+          : { id: agentId, type: "agent_reference" }
+      }
+    }
   );
 
-  // Some SDK responses expose output_text; keep it defensive
-  const outputText = (response as any).output_text ?? (response as any).outputText ?? "";
+  // Keep this defensive because SDK surface varies slightly
+  const outputText =
+    (response as any).output_text ??
+    (response as any).outputText ??
+    (response as any).output?.[0]?.content?.[0]?.text ??
+    "";
 
-  context.log("Response received. chars=", outputText.length);
+  context.log("Response received chars=", outputText.length);
 
   return { conversationId: conversation.id, outputText };
 }
