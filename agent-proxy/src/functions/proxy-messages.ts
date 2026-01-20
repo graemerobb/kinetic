@@ -7,22 +7,6 @@ type ProxyRequestBody = {
   message?: string;
 };
 
-const credential = new DefaultAzureCredential();
-
-const projectEndpoint =
-  process.env.FOUNDRY_PROJECT_ENDPOINT ??
-  "https://agent-training-resource-test.services.ai.azure.com/api/projects/agent-training";
-
-const agentId = process.env.FOUNDRY_AGENT_ID; // <-- REQUIRED (most reliable)
-const agentVersion = process.env.FOUNDRY_AGENT_VERSION; // optional
-
-if (!agentId) {
-  // Fail fast on cold start rather than mysteriously at runtime
-  throw new Error("Missing FOUNDRY_AGENT_ID app setting");
-}
-
-const projectClient = new AIProjectClient(projectEndpoint, credential);
-
 app.http("proxy-messages", {
   methods: ["POST"],
   authLevel: "anonymous",
@@ -64,7 +48,24 @@ async function doProxy(
   prompt: string,
   context: InvocationContext
 ): Promise<{ conversationId: string; outputText: string }> {
-  // Use the Azure OpenAI client provided by the Projects SDK (per your TS error hint)
+  // Resolve config at invocation time (no startup throws)
+  const projectEndpoint =
+    process.env.FOUNDRY_PROJECT_ENDPOINT ??
+    "https://agent-training-resource-test.services.ai.azure.com/api/projects/agent-training";
+
+  const agentId = process.env.FOUNDRY_AGENT_ID;
+  const agentVersion = process.env.FOUNDRY_AGENT_VERSION;
+
+  if (!agentId) {
+    // Return a clean error instead of crashing indexing
+    throw new Error("Missing FOUNDRY_AGENT_ID app setting");
+  }
+
+  // Create credential + client at invocation time (no static init)
+  const credential = new DefaultAzureCredential();
+  const projectClient = new AIProjectClient(projectEndpoint, credential);
+
+  // Use the Azure OpenAI client provided by the Projects SDK
   const aoaiClient = await projectClient.getAzureOpenAIClient();
 
   context.log("Creating conversation...");
@@ -86,7 +87,6 @@ async function doProxy(
     }
   );
 
-  // Keep this defensive because SDK surface varies slightly
   const outputText =
     (response as any).output_text ??
     (response as any).outputText ??
