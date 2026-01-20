@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - "api/**"
+      - ".github/workflows/deploy-functions.yml"
 permissions:
   id-token: write
   contents: read
