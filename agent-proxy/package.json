@@ -15,8 +15,8 @@
     "@azure/functions": "^4.0.0",
     "@azure/identity": "^4.0.0",
     "mssql": "^10.0.0",
-    "@azure/ai-projects": "^1.0.1"
-
+    "@azure/ai-projects": "^18.20.8",
+    "@azure/ai-agents": "^18.20.8"
   },
   "devDependencies": {
     "azure-functions-core-tools": "^4.x",
