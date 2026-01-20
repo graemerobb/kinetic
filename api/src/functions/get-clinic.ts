@@ -5,26 +5,12 @@ import { DefaultAzureCredential } from "@azure/identity";
 const credential = new DefaultAzureCredential();
 
 async function getSqlPool() {
-  const token = await credential.getToken("https://database.windows.net/.default");
+  const connectionString = process.env.MSSQL_CONNECTION_STRING;
+  if (!connectionString) throw new Error("Missing MSSQL_CONNECTION_STRING");
 
-  if (!token) {
-    throw new Error("Failed to acquire Azure SQL access token");
-  }
-
-  return sql.connect({
-    server: process.env.SQL_SERVER!,
-    database: process.env.SQL_DATABASE!,
-    options: {
-      encrypt: true
-    },
-    authentication: {
-      type: "azure-active-directory-access-token",
-      options: {
-        token: token.token
-      }
-    }
-  });
+  return sql.connect(connectionString);
 }
+
 
 export async function getClinic(
   request: HttpRequest,
