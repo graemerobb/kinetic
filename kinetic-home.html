@@ -8,19 +8,16 @@
     :root{
       --bg: #0b1220;
       --panel: #0f1b2f;
-      --panel-2: #0c1628;
       --border: rgba(255,255,255,.10);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.70);
       --muted-2: rgba(255,255,255,.55);
-      --focus: rgba(255,255,255,.18);
       --shadow: 0 10px 30px rgba(0,0,0,.35);
       --radius: 14px;
       --gap: 16px;
-      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
-
-    * { box-sizing: border-box; }
+    *{ box-sizing: border-box; }
     body{
       margin: 0;
       font-family: var(--font);
@@ -29,7 +26,6 @@
                   radial-gradient(900px 400px at 80% 0%, rgba(255,255,255,.07), transparent 55%),
                   var(--bg);
     }
-
     .page{
       max-width: 1200px;
       margin: 0 auto;
@@ -39,103 +35,46 @@
       gap: var(--gap);
       min-height: 100vh;
     }
-
-    /* Header */
     .header{
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: var(--gap);
-      padding: 18px 18px;
+      padding: 18px;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       box-shadow: var(--shadow);
     }
-
-    .brand{
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
+    .brand{ display:flex; align-items:center; gap:12px; min-width:0; }
     .logo{
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
+      width:44px; height:44px; border-radius:12px;
+      border:1px solid var(--border);
       background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.04));
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-      flex: 0 0 auto;
+      display:grid; place-items:center; overflow:hidden; flex:0 0 auto;
     }
+    h1{ margin:0; font-size:20px; line-height:1.2; }
+    .subtitle{ margin:4px 0 0 0; font-size:13px; color: var(--muted); }
 
-    /* If you swap to an <img>, this keeps it neat */
-    .logo img{
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .title-wrap{
-      min-width: 0;
-    }
-
-    h1{
-      margin: 0;
-      font-size: 20px;
-      letter-spacing: .2px;
-      line-height: 1.2;
-    }
-
-    .subtitle{
-      margin: 4px 0 0 0;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .header-actions{
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .pill{
-      font-size: 12px;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.04);
-      padding: 8px 10px;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-
-    /* Clinic info strip */
     .clinic-info{
       border: 1px solid var(--border);
       border-radius: var(--radius);
       background: rgba(255,255,255,.03);
       box-shadow: var(--shadow);
-      padding: 14px 14px;
+      padding: 14px;
     }
-
     .clinic-grid{
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
     }
-
     .field{
-      padding: 10px 10px;
+      padding: 10px;
       border: 1px solid var(--border);
       border-radius: 12px;
       background: rgba(0,0,0,.14);
+      min-width: 0;
     }
-
     .label{
       font-size: 11px;
       color: var(--muted-2);
@@ -143,7 +82,6 @@
       text-transform: uppercase;
       margin-bottom: 6px;
     }
-
     .value{
       font-size: 14px;
       color: var(--text);
@@ -151,15 +89,42 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    .value.muted{ color: var(--muted); }
 
-    /* Main layout: left content + right notifications */
+    .status-row{
+      margin-top: 10px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .status-pill{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      padding: 6px 10px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      white-space: nowrap;
+    }
+    .dot{
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,.65);
+      display:inline-block;
+    }
+    .dot.ok{ background: rgba(120,255,180,.9); }
+    .dot.err{ background: rgba(255,120,120,.9); }
+
     .main{
       display: grid;
       grid-template-columns: 1fr 320px;
       gap: var(--gap);
       align-items: start;
     }
-
     .card{
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -167,7 +132,6 @@
       box-shadow: var(--shadow);
       overflow: hidden;
     }
-
     .card-header{
       padding: 12px 14px;
       border-bottom: 1px solid var(--border);
@@ -177,21 +141,12 @@
       gap: 10px;
       background: rgba(255,255,255,.02);
     }
-
-    .card-title{
-      font-size: 13px;
-      color: var(--muted);
-      letter-spacing: .2px;
-      margin: 0;
-    }
-
-    /* ClinicContent area */
+    .card-title{ font-size: 13px; color: var(--muted); margin: 0; }
     .clinic-content{
       min-height: 380px;
       padding: 14px;
       background: linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.06));
     }
-
     .placeholder{
       height: 100%;
       border: 1px dashed rgba(255,255,255,.18);
@@ -202,20 +157,7 @@
       color: var(--muted);
       text-align: center;
     }
-
-    /* Prompt area */
-    .prompt{
-      padding: 14px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .prompt-label{
-      font-size: 13px;
-      color: var(--muted);
-      margin: 0;
-    }
-
+    .prompt{ padding: 14px; display: grid; gap: 10px; }
     textarea{
       width: 100%;
       min-height: 120px;
@@ -224,24 +166,17 @@
       border: 1px solid var(--border);
       background: rgba(0,0,0,.18);
       color: var(--text);
-      padding: 12px 12px;
+      padding: 12px;
       outline: none;
       line-height: 1.4;
       font-size: 14px;
     }
-
     textarea:focus{
       border-color: rgba(255,255,255,.22);
       box-shadow: 0 0 0 4px rgba(255,255,255,.06);
       background: rgba(0,0,0,.22);
     }
-
-    .prompt-actions{
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
+    .prompt-actions{ display:flex; gap:10px; flex-wrap: wrap; }
     button{
       appearance: none;
       border: 1px solid var(--border);
@@ -252,26 +187,11 @@
       cursor: pointer;
       font-size: 13px;
     }
+    button:hover{ background: rgba(255,255,255,.10); }
+    .btn-primary{ background: rgba(255,255,255,.14); }
+    .btn-primary:hover{ background: rgba(255,255,255,.18); }
 
-    button:hover{
-      background: rgba(255,255,255,.10);
-    }
-
-    .btn-primary{
-      background: rgba(255,255,255,.14);
-    }
-
-    .btn-primary:hover{
-      background: rgba(255,255,255,.18);
-    }
-
-    /* Notifications panel */
-    .notifications{
-      padding: 14px;
-      display: grid;
-      gap: 12px;
-    }
-
+    .notifications{ padding: 14px; display: grid; gap: 12px; }
     .note{
       border: 1px solid var(--border);
       background: rgba(0,0,0,.14);
@@ -280,51 +200,16 @@
       display: grid;
       gap: 6px;
     }
+    .note-title{ font-size: 13px; margin: 0; }
+    .note-body{ margin: 0; font-size: 13px; color: var(--muted); line-height: 1.35; }
 
-    .note-title{
-      font-size: 13px;
-      margin: 0;
-      color: var(--text);
-    }
-
-    .note-body{
-      margin: 0;
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.35;
-    }
-
-    .badge{
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.04);
-      padding: 6px 10px;
-      border-radius: 999px;
-      width: fit-content;
-    }
-
-    .dot{
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.65);
-      display: inline-block;
-    }
-
-    /* Responsive */
     @media (max-width: 980px){
       .clinic-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .main{ grid-template-columns: 1fr; }
     }
-
     @media (max-width: 560px){
       .clinic-grid{ grid-template-columns: 1fr; }
       .header{ flex-direction: column; align-items: flex-start; }
-      .header-actions{ width: 100%; }
     }
   </style>
 </head>
@@ -332,25 +217,18 @@
 <body>
   <div class="page">
 
-    <!-- Header -->
     <header class="header">
       <div class="brand">
         <div class="logo" aria-label="Kinetic logo">
-          <!-- Replace this block with: <img src="kinetic-logo.png" alt="Kinetic" /> -->
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M6 18L18 6" stroke="rgba(255,255,255,.85)" stroke-width="2" stroke-linecap="round"/>
             <path d="M7.5 6H18V16.5" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <div class="title-wrap">
+        <div>
           <h1>Welcome to Kinetic</h1>
           <p class="subtitle">Clinic console</p>
         </div>
-      </div>
-
-      <div class="header-actions">
-        <span class="pill">Environment: Dev</span>
-        <span class="pill">Status: Connected</span>
       </div>
     </header>
 
@@ -359,31 +237,42 @@
       <div class="clinic-grid">
         <div class="field">
           <div class="label">Clinic ID</div>
-          <div class="value" id="clinicIdValue">cln_001</div>
+          <div class="value muted" id="clinicIdValue">Loading…</div>
         </div>
         <div class="field">
           <div class="label">Email address</div>
-          <div class="value" id="clinicEmailValue">clinic@example.com</div>
+          <div class="value muted" id="clinicEmailValue">Loading…</div>
         </div>
         <div class="field">
           <div class="label">Speciality</div>
-          <div class="value" id="clinicSpecialityValue">Physiotherapy</div>
+          <div class="value muted" id="clinicSpecialityValue">Loading…</div>
         </div>
         <div class="field">
           <div class="label">Address</div>
-          <div class="value" id="clinicAddressValue">123 Example St, Melbourne VIC</div>
+          <div class="value muted" id="clinicAddressValue">Loading…</div>
         </div>
+      </div>
+
+      <div class="status-row">
+        <span class="status-pill" id="fetchStatus">
+          <span class="dot"></span>
+          <span id="fetchStatusText">Waiting for clinic_id…</span>
+        </span>
+
+        <span class="status-pill" id="endpointStatus">
+          Endpoint:
+          <span id="endpointText">—</span>
+        </span>
       </div>
     </section>
 
     <!-- Main -->
     <main class="main">
 
-      <!-- Left column -->
       <section class="card" aria-label="Clinic content area">
         <div class="card-header">
           <p class="card-title">ClinicContent</p>
-          <span class="pill">v0</span>
+          <span class="status-pill"><span class="dot ok"></span> Ready</span>
         </div>
 
         <div class="clinic-content" id="clinicContent">
@@ -396,7 +285,7 @@
         </div>
 
         <div class="prompt">
-          <p class="prompt-label">Prompt (instruct the agent)</p>
+          <p class="card-title" style="margin:0;">Prompt (instruct the agent)</p>
           <textarea
             id="agentPrompt"
             placeholder="e.g. Summarise the clinic profile, check missing fields, and suggest next steps..."
@@ -404,16 +293,15 @@
 
           <div class="prompt-actions">
             <button class="btn-primary" type="button">Send to agent</button>
-            <button type="button">Clear</button>
+            <button type="button" id="clearBtn">Clear</button>
           </div>
         </div>
       </section>
 
-      <!-- Right column: Notifications -->
       <aside class="card" aria-label="Notifications">
         <div class="card-header">
           <p class="card-title">Notifications</p>
-          <span class="badge"><span class="dot"></span> Live</span>
+          <span class="status-pill"><span class="dot"></span> Live</span>
         </div>
 
         <div class="notifications">
@@ -421,20 +309,131 @@
             <p class="note-title">Sharing enabled</p>
             <p class="note-body">This clinic is registered to share data.</p>
           </div>
-
-          <div class="note">
-            <p class="note-title">Consent status</p>
-            <p class="note-body">No issues detected. Consent records appear up to date.</p>
-          </div>
-
-          <div class="note">
-            <p class="note-title">Next recommended action</p>
-            <p class="note-body">Ask the agent to validate address formatting and confirm speciality taxonomy.</p>
-          </div>
         </div>
       </aside>
 
     </main>
   </div>
+
+  <script>
+    /**
+     * 1) URL format:
+     *    /clinic.html?clinic_id=cln_001
+     *
+     * 2) Endpoint: replace with your API
+     *    Example:
+     *      GET https://kinetic-api.azurewebsites.net/api/clinics/{clinic_id}
+     *    or
+     *      GET https://.../api/get-clinic?id={clinic_id}
+     */
+
+    const API_BASE_URL = "https://kinetic-api-bxdaadd8bpgvhsdz.australiaeast-01.azurewebsites.net"; // <-- change me
+
+    // OPTION A (path param):
+    // const buildClinicUrl = (clinicId) => `${API_BASE_URL}/api/clinics/${encodeURIComponent(clinicId)}`;
+
+    // OPTION B (query param):
+    const buildClinicUrl = (clinicId) => `${API_BASE_URL}/api/get-clinic?id=${encodeURIComponent(clinicId)}`;
+
+    // ---- UI helpers ----
+    const el = (id) => document.getElementById(id);
+
+    function setStatus({ ok, text }) {
+      const dot = el("fetchStatus").querySelector(".dot");
+      dot.classList.remove("ok", "err");
+      dot.classList.add(ok ? "ok" : "err");
+      el("fetchStatusText").textContent = text;
+    }
+
+    function setField(id, value) {
+      const node = el(id);
+      node.textContent = value ?? "—";
+      node.classList.remove("muted");
+    }
+
+    function setLoading() {
+      ["clinicIdValue","clinicEmailValue","clinicSpecialityValue","clinicAddressValue"].forEach((id) => {
+        const node = el(id);
+        node.textContent = "Loading…";
+        node.classList.add("muted");
+      });
+      const dot = el("fetchStatus").querySelector(".dot");
+      dot.classList.remove("ok", "err");
+      el("fetchStatusText").textContent = "Loading clinic details…";
+    }
+
+    function setError(message) {
+      ["clinicIdValue","clinicEmailValue","clinicSpecialityValue","clinicAddressValue"].forEach((id) => {
+        const node = el(id);
+        node.textContent = "—";
+        node.classList.remove("muted");
+      });
+      setStatus({ ok: false, text: message });
+    }
+
+    // ---- Data mapping ----
+    // Adjust these keys to match your API response shape.
+    function mapClinicResponseToUI(data, clinicId) {
+      // Try a few common shapes (adapt to your real payload)
+      // Example shapes:
+      //   { id, email, speciality, address }
+      //   { clinic: { id, email, specialty, addressLine1, ... } }
+      const c = data?.clinic ?? data;
+
+      setField("clinicIdValue", c?.id ?? clinicId);
+      setField("clinicEmailValue", c?.email ?? c?.emailAddress);
+      setField("clinicSpecialityValue", c?.speciality ?? c?.specialty);
+      setField("clinicAddressValue", c?.address ?? c?.addressLine ?? c?.address1);
+    }
+
+    async function loadClinic() {
+      const params = new URLSearchParams(window.location.search);
+      const clinicId = params.get("clinic_id");
+
+      if (!clinicId) {
+        setError("Missing clinic_id in URL (e.g. ?clinic_id=cln_001)");
+        el("endpointText").textContent = "—";
+        return;
+      }
+
+      const url = buildClinicUrl(clinicId);
+      el("endpointText").textContent = url;
+
+      setLoading();
+
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+            // If you need auth, add:
+            // "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (!res.ok) {
+          const bodyText = await res.text().catch(() => "");
+          throw new Error(`HTTP ${res.status} ${res.statusText}${bodyText ? " — " + bodyText : ""}`);
+        }
+
+        const data = await res.json();
+        mapClinicResponseToUI(data, clinicId);
+        setStatus({ ok: true, text: "Clinic loaded" });
+
+      } catch (err) {
+        console.error(err);
+        setError(`Failed to load clinic: ${err.message}`);
+      }
+    }
+
+    // Clear prompt button
+    el("clearBtn").addEventListener("click", () => {
+      el("agentPrompt").value = "";
+      el("agentPrompt").focus();
+    });
+
+    // Kick off
+    loadClinic();
+  </script>
 </body>
 </html>

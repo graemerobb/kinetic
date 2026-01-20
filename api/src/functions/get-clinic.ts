@@ -8,7 +8,7 @@ async function getSqlPool() {
   return sql.connect(connectionString);
 }
 
-
+//force recommit
 export async function getClinic(
   request: HttpRequest,
   context: InvocationContext
