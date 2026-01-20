@@ -48,6 +48,36 @@ jobs:
           npm install
           npm run build
 
+      - name: Debug show api folder tree (top)
+        run: |
+          echo "PWD:" && pwd
+          echo "Repo root contents:" && ls -la
+          echo "API folder contents:" && ls -la api
+          echo "API src contents:" && ls -la api/src || true
+          echo "API dist contents:" && ls -la api/dist || true
+
+      - name: Debug find function.json
+        run: |
+          echo "function.json under api:"
+          find api -name "function.json" -print || true
+
+      - name: Debug find function.json and compiled JS
+        run: |
+          echo "Searching for function.json:" 
+          find api -maxdepth 6 -name "function.json" -print || true
+          echo "Searching for compiled JS under dist:" 
+          find api/dist -maxdepth 6 -type f -name "*.js" -print || true
+          echo "Searching for any JS files under api:" 
+          find api -maxdepth 6 -type f -name "*.js" -print || true
+
+      - name: Debug show package.json main + scripts
+        run: |
+          echo "api/package.json:"
+          cat api/package.json
+          echo "api/host.json:"
+          cat api/host.json || true
+
+
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
