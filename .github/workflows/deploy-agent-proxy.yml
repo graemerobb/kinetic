@@ -64,18 +64,18 @@ jobs:
       - name: Debug find function.json and compiled JS
         run: |
           echo "Searching for function.json:" 
-          find api -maxdepth 6 -name "function.json" -print || true
+          find agent-proxy -maxdepth 6 -name "function.json" -print || true
           echo "Searching for compiled JS under dist:" 
-          find api/dist -maxdepth 6 -type f -name "*.js" -print || true
-          echo "Searching for any JS files under api:" 
-          find api -maxdepth 6 -type f -name "*.js" -print || true
+          find agent-proxy/dist -maxdepth 6 -type f -name "*.js" -print || true
+          echo "Searching for any JS files under agent-proxy:" 
+          find agent-proxy -maxdepth 6 -type f -name "*.js" -print || true
 
       - name: Debug show package.json main + scripts
         run: |
-          echo "api/package.json:"
-          cat api/package.json
-          echo "api/host.json:"
-          cat api/host.json || true
+          echo "agent-proxy/package.json:"
+          cat agent-proxy/package.json
+          echo "agent-proxy/host.json:"
+          cat agent-proxy/host.json || true
 
 
       - name: Deploy to Azure Functions
