@@ -3,7 +3,8 @@ name: Deploy Functions
 on:
   push:
     branches: [ "main" ]
-
+    paths:
+      - "api/**"
 permissions:
   id-token: write
   contents: read
