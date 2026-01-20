@@ -40,7 +40,7 @@ jobs:
           node-version: 18
 
       - name: Install & build Functions
-        working-directory: api
+        working-directory: agent-proxy
         run: |
           npm install
           npm run build
@@ -49,9 +49,9 @@ jobs:
         run: |
           echo "PWD:" && pwd
           echo "Repo root contents:" && ls -la
-          echo "API folder contents:" && ls -la agent-proxy
-          echo "API src contents:" && ls -la agent-proxy/src || true
-          echo "API dist contents:" && ls -la agent-proxy/dist || true
+          echo "agent-proxy folder contents:" && ls -la agent-proxy
+          echo "agent-proxy src contents:" && ls -la agent-proxy/src || true
+          echo "agent-proxy dist contents:" && ls -la agent-proxy/dist || true
 
       - name: Debug find function.json
         run: |
