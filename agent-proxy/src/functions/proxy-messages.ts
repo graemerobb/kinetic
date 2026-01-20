@@ -44,44 +44,58 @@ export async function proxyMessages(
   }
 }
 
-async function doProxy(prompt: string, context: InvocationContext) {
+async function doProxy(
+  prompt: string,
+  context: InvocationContext
+): Promise<{ conversationId: string; outputText: string }> {
+  // Resolve config at invocation time (no startup throws)
   const projectEndpoint =
     process.env.FOUNDRY_PROJECT_ENDPOINT ??
     "https://agent-training-resource-test.services.ai.azure.com/api/projects/agent-training";
 
-  const agentName = process.env.FOUNDRY_AGENT_NAME ?? "kinetic-agent"; // or use ID if you prefer
+  context.log("Connecting to endpoint "+projectEndpoint);
+  const agentId = process.env.FOUNDRY_AGENT_ID;
+  const agentVersion = process.env.FOUNDRY_AGENT_VERSION;
 
-  context.log("Connecting to endpoint " + projectEndpoint);
+  if (!agentId) {
+    // Return a clean error instead of crashing indexing
+    context.log("Missing FOUNDRY_AGENT_ID app setting");
+    agentId = "";
+  }
 
+  // Create credential + client at invocation time (no static init)
   const credential = new DefaultAzureCredential();
   const projectClient = new AIProjectClient(projectEndpoint, credential);
 
-  // ✅ Foundry OpenAI-compatible client (for Conversations + Responses against the project)
-  const openAIClient = await projectClient.getOpenAIClient();
-
-  // Optional but very useful: confirm agent exists and get the canonical name/id
-  const retrievedAgent = await projectClient.agents.get(agentName);
-  context.log("Retrieved agent:", retrievedAgent.name, "id:", retrievedAgent.id);
+  // Use the Azure OpenAI client provided by the Projects SDK
+  const aoaiClient = await projectClient.getAzureOpenAIClient();
 
   context.log("Creating conversation...");
-  const conversation = await openAIClient.conversations.create({
-    items: [{ type: "message", role: "user", content: prompt }],
+  const conversation = await aoaiClient.conversations.create({
+    items: [{ type: "message", role: "user", content: prompt }]
   });
+
   context.log("Conversation created:", conversation.id);
 
   context.log("Generating response...");
-  const response = await openAIClient.responses.create(
+  const response = await aoaiClient.responses.create(
     { conversation: conversation.id },
     {
       body: {
-        agent: { name: retrievedAgent.name, type: "agent_reference" },
-        // OR: agent: { id: retrievedAgent.id, type: "agent_reference" }  (depending on SDK version)
-      },
+        agent: agentVersion
+          ? { id: agentId, version: agentVersion, type: "agent_reference" }
+          : { id: agentId, type: "agent_reference" }
+      }
     }
   );
 
-  return {
-    conversationId: conversation.id,
-    outputText: response.output_text ?? "",
-  };
+  const outputText =
+    (response as any).output_text ??
+    (response as any).outputText ??
+    (response as any).output?.[0]?.content?.[0]?.text ??
+    "";
+
+  context.log("Response received chars=", outputText.length);
+
+  return { conversationId: conversation.id, outputText };
 }
