@@ -52,6 +52,8 @@ jobs:
           echo "agent-proxy folder contents:" && ls -la agent-proxy
           echo "agent-proxy src contents:" && ls -la agent-proxy/src || true
           echo "agent-proxy dist contents:" && ls -la agent-proxy/dist || true
+          echo "agent-proxy dist/src contents:" && ls -la agent-proxy/dist/src || true
+          echo "agent-proxy dist/src/functions contents:" && ls -la agent-proxy/dist/src/functions || true
 
       - name: Debug find function.json
         run: |
