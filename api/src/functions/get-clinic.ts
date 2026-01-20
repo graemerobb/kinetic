@@ -1,8 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import sql from "mssql";
-import { DefaultAzureCredential } from "@azure/identity";
-
-const credential = new DefaultAzureCredential();
 
 async function getSqlPool() {
   const connectionString = process.env.MSSQL_CONNECTION_STRING;
