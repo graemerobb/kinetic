@@ -53,12 +53,15 @@ async function doProxy(
     process.env.FOUNDRY_PROJECT_ENDPOINT ??
     "https://agent-training-resource-test.services.ai.azure.com/api/projects/agent-training";
 
+  context.log("Connecting to endpoint "+projectEndpoint);
+  
   const agentId = process.env.FOUNDRY_AGENT_ID;
   const agentVersion = process.env.FOUNDRY_AGENT_VERSION;
 
   if (!agentId) {
     // Return a clean error instead of crashing indexing
-    throw new Error("Missing FOUNDRY_AGENT_ID app setting");
+    context.log("Missing FOUNDRY_AGENT_ID app setting");
+    agentId = "";
   }
 
   // Create credential + client at invocation time (no static init)
