@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "Node16",
-    "moduleResolution": "node16",
+    "module": "Node22",
+    "moduleResolution": "node22",
     "target": "ES2022",
     "lib": ["ES2022"],
     "outDir": "dist",
