@@ -34,8 +34,8 @@ jobs:
       - name: Debug Azure context
         run: |
           az account show -o table
-          az group show -n ${{ env.RESOURCE_GROUP }} -o table
-          az functionapp list -g ${{ env.RESOURCE_GROUP }} --query "[].name" -o tsv
+          az group show -n Kinetic_rg -o table
+          az functionapp list -g Kinetic_rg --query "[].name" -o tsv
 
       - name: Setup Node
         uses: actions/setup-node@v4
