@@ -67,7 +67,8 @@ async function doProxy(
   const credential = new DefaultAzureCredential();
   const projectClient = new AIProjectClient(projectEndpoint, credential);
 
-  const agent = await projectClient.agents.get(agentId);
+  const agent = await projectClient.agents.getAgent(agentId);
+
   context.log("Agent lookup OK:", agent.name, agent.id, agentId);
   // Use the Azure OpenAI client provided by the Projects SDK
   const aoaiClient = await projectClient.getAzureOpenAIClient();
