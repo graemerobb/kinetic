@@ -308,7 +308,7 @@
           ></textarea>
 
           <div class="prompt-actions">
-            <button class="btn-primary" type="button" id="sendBtn">Send to agent</button>
+            <button class="btn-primary" type="button" id="sendBtn">Send</button>
             <button type="button" id="clearBtn">Clear</button>
           </div>
         </div>
@@ -332,15 +332,11 @@
   </div>
 
   <script>
-    const AGENT_ENDPOINT = "https://agent-training-resource-test.services.ai.azure.com/api/projects/agent-training/applications/kinetic-agent/protocols/activityprotocol?api-version=2025-11-15-preview"
-    let currentClinicId = null;
-    let currentClinicData = null; // store loaded clinic details for the agent payload
+    // CHANGE: Call your proxy (plain text in/out), not the agent endpoint.
+    // Set this to your Azure proxy URL.
+    const PROXY_ENDPOINT = "https://YOUR-PROXY-HOST/api/proxy"; // <-- change me
 
-
-    const API_BASE_URL = "https://kinetic-api-bxdaadd8bpgvhsdz.australiaeast-01.azurewebsites.net"; // <-- change me
-
-    // OPTION A (path param):
-    // const buildClinicUrl = (clinicId) => `${API_BASE_URL}/api/clinics/${encodeURIComponent(clinicId)}`;
+    const API_BASE_URL = "https://kinetic-api-bxdaadd8bpgvhsdz.australiaeast-01.azurewebsites.net";
 
     // OPTION B (query param):
     const buildClinicUrl = (clinicId) => `${API_BASE_URL}/api/get-clinic?id=${encodeURIComponent(clinicId)}`;
@@ -381,19 +377,38 @@
       setStatus({ ok: false, text: message });
     }
 
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderOutput(text) {
+      const out = document.getElementById("agentOutput");
+      out.innerHTML = `<div>${escapeHtml(text ?? "—")}</div>`;
+    }
+
+    function showWorking() {
+      const out = document.getElementById("agentOutput");
+      out.innerHTML = `<div class="agent-empty">Working…</div>`;
+    }
+
+    function setSendBusy(isBusy, label) {
+      const btn = document.getElementById("sendBtn");
+      btn.disabled = isBusy;
+      btn.textContent = label ?? (isBusy ? "Sending…" : "Send");
+    }
+
     // ---- Data mapping ----
-    // Adjust these keys to match your API response shape.
     function mapClinicResponseToUI(data, clinicId) {
-        const c = data?.clinic ?? data;
-
-        // Save for agent payload
-        currentClinicId = clinicId;
-        currentClinicData = c;
-
-        setField("clinicIdValue", c?.id ?? clinicId);
-        setField("clinicEmailValue", c?.email ?? c?.emailAddress);
-        setField("clinicSpecialityValue", c?.speciality ?? c?.specialty);
-        setField("clinicAddressValue", c?.address ?? c?.addressLine ?? c?.address1);
+      const c = data?.clinic ?? data;
+      setField("clinicIdValue", c?.id ?? clinicId);
+      setField("clinicEmailValue", c?.email ?? c?.emailAddress);
+      setField("clinicSpecialityValue", c?.speciality ?? c?.specialty);
+      setField("clinicAddressValue", c?.address ?? c?.addressLine ?? c?.address1);
     }
 
     async function loadClinic() {
@@ -414,11 +429,7 @@
       try {
         const res = await fetch(url, {
           method: "GET",
-          headers: {
-            "Accept": "application/json"
-            // If you need auth, add:
-            // "Authorization": `Bearer ${token}`
-          }
+          headers: { "Accept": "application/json" }
         });
 
         if (!res.ok) {
@@ -436,117 +447,62 @@
       }
     }
 
-    function setSendBusy(isBusy, label) {
-        const btn = document.getElementById("sendBtn");
-        btn.disabled = isBusy;
-        btn.textContent = label ?? (isBusy ? "Sending…" : "Send to agent");
-    }
-
-    function renderAgentOutput(text) {
-      const out = document.getElementById("agentOutput");
-
-      out.innerHTML = `
-        <div>${escapeHtml(text ?? "—")}</div>
-      `;
-    }
-
-    function escapeHtml(str) {
-    return String(str ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    /**
-     * Expected agent response shapes (supports multiple):
-     *   { output: "..." }
-     *   { message: "..." }
-     *   { response: "..." }
-     *   { content: "..." }
-     *   { data: { ... }, output: "..." }
-     */
-    function pickAgentText(json) {
-    return json?.output ?? json?.message ?? json?.response ?? json?.content ?? JSON.stringify(json, null, 2);
-    }
-
-    function showAgentThinking() {
-      const out = document.getElementById("agentOutput");
-      out.innerHTML = `<div class="agent-empty">Working…</div>`;
-    }
-
-    async function sendToAgent() {
-
-    const prompt = document.getElementById("agentPrompt").value.trim();
-    if (!prompt) {
-        alert("Please enter a prompt for the agent.");
-        return;
-    }
-    if (!currentClinicId) {
-        alert("Missing clinic_id in URL (e.g. ?clinic_id=cln_001).");
-        return;
-    }
-    showAgentThinking();
-
-    // Payload to your agent
-    const payload = {
-        clinic_id: currentClinicId,
-        clinic: currentClinicData,     // includes email/speciality/address etc (as returned by your clinic API)
-        prompt,
-        // Optional: add session or user info if you want later
-        // session_id: crypto.randomUUID?.() ?? undefined
-    };
-
-    setSendBusy(true);
-
-    try {
-        const res = await fetch(AGENT_ENDPOINT, {
+    // CHANGE: proxy call (plain text body in/out)
+    async function callProxy(prompt) {
+      const res = await fetch(PROXY_ENDPOINT, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            // If you need auth:
-            // "Authorization": `Bearer ${token}`
+          "Content-Type": "text/plain; charset=utf-8",
+          "Accept": "text/plain"
+          // If you need auth, add here:
+          // "x-api-key": "..."
+          // "Ocp-Apim-Subscription-Key": "..."
+          // "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify(payload)
-        });
+        body: prompt
+      });
 
-        if (!res.ok) {
+      if (!res.ok) {
         const bodyText = await res.text().catch(() => "");
         throw new Error(`HTTP ${res.status} ${res.statusText}${bodyText ? " — " + bodyText : ""}`);
-        }
+      }
 
-        const json = await res.json();
-        renderAgentOutput(pickAgentText(json));
+      return await res.text();
+    }
 
+    // CHANGE: Send button now hits proxy (not agent), plain text in/out
+    async function sendToProxy() {
+      const prompt = document.getElementById("agentPrompt").value.trim();
+      if (!prompt) return;
 
-    } catch (err) {
+      showWorking();
+      setSendBusy(true);
+
+      try {
+        const text = await callProxy(prompt);
+        renderOutput(text);
+      } catch (err) {
         console.error(err);
-        renderAgentOutput(`Error: ${err.message}`);
-
-    } finally {
+        renderOutput(`Error: ${err.message}`);
+      } finally {
         setSendBusy(false);
-    }
+      }
     }
 
-    document.getElementById("sendBtn").addEventListener("click", sendToAgent);
+    document.getElementById("sendBtn").addEventListener("click", sendToProxy);
 
-    // Nice-to-have: Ctrl/Cmd + Enter sends prompt
     document.getElementById("agentPrompt").addEventListener("keydown", (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         e.preventDefault();
-        sendToAgent();
-    }
+        sendToProxy();
+      }
     });
 
-    // Clear prompt button
     el("clearBtn").addEventListener("click", () => {
       el("agentPrompt").value = "";
       el("agentPrompt").focus();
     });
 
-    // Kick off
     loadClinic();
   </script>
 </body>
