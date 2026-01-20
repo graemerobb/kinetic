@@ -4,6 +4,9 @@ import sql from "mssql";
 async function getSqlPool() {
   const connectionString = process.env.MSSQL_CONNECTION_STRING;
   if (!connectionString) throw new Error("Missing MSSQL_CONNECTION_STRING");
+  context.log("MSSQL_CONNECTION_STRING prefix:", connectionString?.slice(0, 80));
+  context.log("Contains Authentication=", connectionString?.includes("Authentication="));
+  context.log("Contains clientId=", connectionString?.toLowerCase().includes("clientid"));
 
   return sql.connect(connectionString);
 }
