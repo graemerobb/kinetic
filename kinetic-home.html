@@ -211,6 +211,38 @@
       .clinic-grid{ grid-template-columns: 1fr; }
       .header{ flex-direction: column; align-items: flex-start; }
     }
+    .agent-output{
+        border: 1px solid var(--border);
+        background: rgba(0,0,0,.14);
+        border-radius: 12px;
+        padding: 12px;
+        min-height: 280px;
+        overflow: auto;
+        white-space: pre-wrap;
+        line-height: 1.45;
+        font-size: 14px;
+        }
+        .agent-empty{
+        color: var(--muted);
+        padding: 14px 10px;
+        }
+        .agent-row{
+        padding: 10px 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,.10);
+        background: rgba(255,255,255,.03);
+        margin-bottom: 10px;
+        }
+        .agent-row h3{
+        margin: 0 0 6px 0;
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 600;
+        }
+        .small-muted{
+        color: var(--muted);
+        font-size: 12px;
+        }
   </style>
 </head>
 
@@ -276,12 +308,11 @@
         </div>
 
         <div class="clinic-content" id="clinicContent">
-          <div class="placeholder">
-            <div>
-              <div style="font-size:14px; margin-bottom:6px;">ClinicContent area</div>
-              <div style="font-size:12px; opacity:.85;">Leave blank for now — add widgets / forms later.</div>
+            <div id="agentOutput" class="agent-output">
+                <div class="agent-empty">
+                Agent output will appear here.
+                </div>
             </div>
-          </div>
         </div>
 
         <div class="prompt">
@@ -292,7 +323,7 @@
           ></textarea>
 
           <div class="prompt-actions">
-            <button class="btn-primary" type="button">Send to agent</button>
+            <button class="btn-primary" type="button" id="sendBtn">Send to agent</button>
             <button type="button" id="clearBtn">Clear</button>
           </div>
         </div>
@@ -316,16 +347,10 @@
   </div>
 
   <script>
-    /**
-     * 1) URL format:
-     *    /clinic.html?clinic_id=cln_001
-     *
-     * 2) Endpoint: replace with your API
-     *    Example:
-     *      GET https://kinetic-api.azurewebsites.net/api/clinics/{clinic_id}
-     *    or
-     *      GET https://.../api/get-clinic?id={clinic_id}
-     */
+    const AGENT_ENDPOINT = "https://agent-training-resource-test.services.ai.azure.com/api/projects/agent-training/applications/kinetic-agent/protocols/activityprotocol?api-version=2025-11-15-preview"
+    let currentClinicId = null;
+    let currentClinicData = null; // store loaded clinic details for the agent payload
+
 
     const API_BASE_URL = "https://kinetic-api-bxdaadd8bpgvhsdz.australiaeast-01.azurewebsites.net"; // <-- change me
 
@@ -374,16 +399,16 @@
     // ---- Data mapping ----
     // Adjust these keys to match your API response shape.
     function mapClinicResponseToUI(data, clinicId) {
-      // Try a few common shapes (adapt to your real payload)
-      // Example shapes:
-      //   { id, email, speciality, address }
-      //   { clinic: { id, email, specialty, addressLine1, ... } }
-      const c = data?.clinic ?? data;
+        const c = data?.clinic ?? data;
 
-      setField("clinicIdValue", c?.id ?? clinicId);
-      setField("clinicEmailValue", c?.email ?? c?.emailAddress);
-      setField("clinicSpecialityValue", c?.speciality ?? c?.specialty);
-      setField("clinicAddressValue", c?.address ?? c?.addressLine ?? c?.address1);
+        // Save for agent payload
+        currentClinicId = clinicId;
+        currentClinicData = c;
+
+        setField("clinicIdValue", c?.id ?? clinicId);
+        setField("clinicEmailValue", c?.email ?? c?.emailAddress);
+        setField("clinicSpecialityValue", c?.speciality ?? c?.specialty);
+        setField("clinicAddressValue", c?.address ?? c?.addressLine ?? c?.address1);
     }
 
     async function loadClinic() {
@@ -425,6 +450,133 @@
         setError(`Failed to load clinic: ${err.message}`);
       }
     }
+
+    function setSendBusy(isBusy, label) {
+        const btn = document.getElementById("sendBtn");
+        btn.disabled = isBusy;
+        btn.textContent = label ?? (isBusy ? "Sending…" : "Send to agent");
+    }
+
+    function renderAgentOutput({ prompt, responseText, meta }) {
+        const out = document.getElementById("agentOutput");
+        const safeMeta = meta ? JSON.stringify(meta, null, 2) : null;
+
+        const row = document.createElement("div");
+        row.className = "agent-row";
+
+        row.innerHTML = `
+        <h3>Agent response</h3>
+        <div class="small-muted">${new Date().toLocaleString()}</div>
+        <div style="margin-top:10px;">
+        <div class="small-muted" style="margin-bottom:6px;">Prompt</div>
+        <div>${escapeHtml(prompt)}</div>
+        </div>
+        <div style="margin-top:12px;">
+        <div class="small-muted" style="margin-bottom:6px;">Result</div>
+        <div>${escapeHtml(responseText ?? "—")}</div>
+        </div>
+        ${safeMeta ? `
+        <div style="margin-top:12px;">
+            <div class="small-muted" style="margin-bottom:6px;">Meta</div>
+            <pre style="margin:0; white-space:pre-wrap;">${escapeHtml(safeMeta)}</pre>
+        </div>` : ""}
+    `;
+
+    // Remove empty placeholder if present
+    const empty = out.querySelector(".agent-empty");
+    if (empty) empty.remove();
+
+    // Newest on top
+    out.prepend(row);
+    }
+
+    function escapeHtml(str) {
+    return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    /**
+     * Expected agent response shapes (supports multiple):
+     *   { output: "..." }
+     *   { message: "..." }
+     *   { response: "..." }
+     *   { content: "..." }
+     *   { data: { ... }, output: "..." }
+     */
+    function pickAgentText(json) {
+    return json?.output ?? json?.message ?? json?.response ?? json?.content ?? JSON.stringify(json, null, 2);
+    }
+
+    async function sendToAgent() {
+    const prompt = document.getElementById("agentPrompt").value.trim();
+    if (!prompt) {
+        alert("Please enter a prompt for the agent.");
+        return;
+    }
+    if (!currentClinicId) {
+        alert("Missing clinic_id in URL (e.g. ?clinic_id=cln_001).");
+        return;
+    }
+
+    // Payload to your agent
+    const payload = {
+        clinic_id: currentClinicId,
+        clinic: currentClinicData,     // includes email/speciality/address etc (as returned by your clinic API)
+        prompt,
+        // Optional: add session or user info if you want later
+        // session_id: crypto.randomUUID?.() ?? undefined
+    };
+
+    setSendBusy(true);
+
+    try {
+        const res = await fetch(AGENT_ENDPOINT, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            // If you need auth:
+            // "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+        const bodyText = await res.text().catch(() => "");
+        throw new Error(`HTTP ${res.status} ${res.statusText}${bodyText ? " — " + bodyText : ""}`);
+        }
+
+        const json = await res.json();
+        renderAgentOutput({
+        prompt,
+        responseText: pickAgentText(json),
+        meta: json?.meta ?? json?.usage ?? null
+        });
+
+    } catch (err) {
+        console.error(err);
+        renderAgentOutput({
+        prompt,
+        responseText: `Error: ${err.message}`
+        });
+    } finally {
+        setSendBusy(false);
+    }
+    }
+
+    document.getElementById("sendBtn").addEventListener("click", sendToAgent);
+
+    // Nice-to-have: Ctrl/Cmd + Enter sends prompt
+    document.getElementById("agentPrompt").addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        sendToAgent();
+    }
+    });
 
     // Clear prompt button
     el("clearBtn").addEventListener("click", () => {
