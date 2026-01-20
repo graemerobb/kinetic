@@ -31,6 +31,12 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Debug Azure context
+        run: |
+          az account show -o table
+          az group show -n ${{ env.RESOURCE_GROUP }} -o table
+          az functionapp list -g ${{ env.RESOURCE_GROUP }} --query "[].name" -o tsv
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
