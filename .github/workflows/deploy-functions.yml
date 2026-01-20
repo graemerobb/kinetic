@@ -6,6 +6,9 @@ on:
     paths:
       - "api/**"
       - ".github/workflows/deploy-functions.yml"
+
+  workflow_dispatch:
+
 permissions:
   id-token: write
   contents: read
