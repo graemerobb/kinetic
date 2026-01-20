@@ -212,37 +212,21 @@
       .header{ flex-direction: column; align-items: flex-start; }
     }
     .agent-output{
-        border: 1px solid var(--border);
-        background: rgba(0,0,0,.14);
-        border-radius: 12px;
-        padding: 12px;
-        min-height: 280px;
-        overflow: auto;
-        white-space: pre-wrap;
-        line-height: 1.45;
-        font-size: 14px;
-        }
-        .agent-empty{
-        color: var(--muted);
-        padding: 14px 10px;
-        }
-        .agent-row{
-        padding: 10px 10px;
-        border-radius: 10px;
-        border: 1px solid rgba(255,255,255,.10);
-        background: rgba(255,255,255,.03);
-        margin-bottom: 10px;
-        }
-        .agent-row h3{
-        margin: 0 0 6px 0;
-        font-size: 13px;
-        color: var(--muted);
-        font-weight: 600;
-        }
-        .small-muted{
-        color: var(--muted);
-        font-size: 12px;
-        }
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.14);
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 280px;
+      overflow: auto;
+      white-space: pre-wrap;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .agent-empty{
+      color: var(--muted);
+    }
+
   </style>
 </head>
 
@@ -308,12 +292,13 @@
         </div>
 
         <div class="clinic-content" id="clinicContent">
-            <div id="agentOutput" class="agent-output">
-                <div class="agent-empty">
-                Agent output will appear here.
-                </div>
+          <div id="agentOutput" class="agent-output">
+            <div class="agent-empty">
+              Agent output will appear here.
             </div>
+          </div>
         </div>
+
 
         <div class="prompt">
           <p class="card-title" style="margin:0;">Prompt (instruct the agent)</p>
@@ -457,37 +442,12 @@
         btn.textContent = label ?? (isBusy ? "Sending…" : "Send to agent");
     }
 
-    function renderAgentOutput({ prompt, responseText, meta }) {
-        const out = document.getElementById("agentOutput");
-        const safeMeta = meta ? JSON.stringify(meta, null, 2) : null;
+    function renderAgentOutput(text) {
+      const out = document.getElementById("agentOutput");
 
-        const row = document.createElement("div");
-        row.className = "agent-row";
-
-        row.innerHTML = `
-        <h3>Agent response</h3>
-        <div class="small-muted">${new Date().toLocaleString()}</div>
-        <div style="margin-top:10px;">
-        <div class="small-muted" style="margin-bottom:6px;">Prompt</div>
-        <div>${escapeHtml(prompt)}</div>
-        </div>
-        <div style="margin-top:12px;">
-        <div class="small-muted" style="margin-bottom:6px;">Result</div>
-        <div>${escapeHtml(responseText ?? "—")}</div>
-        </div>
-        ${safeMeta ? `
-        <div style="margin-top:12px;">
-            <div class="small-muted" style="margin-bottom:6px;">Meta</div>
-            <pre style="margin:0; white-space:pre-wrap;">${escapeHtml(safeMeta)}</pre>
-        </div>` : ""}
-    `;
-
-    // Remove empty placeholder if present
-    const empty = out.querySelector(".agent-empty");
-    if (empty) empty.remove();
-
-    // Newest on top
-    out.prepend(row);
+      out.innerHTML = `
+        <div>${escapeHtml(text ?? "—")}</div>
+      `;
     }
 
     function escapeHtml(str) {
@@ -511,7 +471,13 @@
     return json?.output ?? json?.message ?? json?.response ?? json?.content ?? JSON.stringify(json, null, 2);
     }
 
+    function showAgentThinking() {
+      const out = document.getElementById("agentOutput");
+      out.innerHTML = `<div class="agent-empty">Working…</div>`;
+    }
+
     async function sendToAgent() {
+
     const prompt = document.getElementById("agentPrompt").value.trim();
     if (!prompt) {
         alert("Please enter a prompt for the agent.");
@@ -521,6 +487,7 @@
         alert("Missing clinic_id in URL (e.g. ?clinic_id=cln_001).");
         return;
     }
+    showAgentThinking();
 
     // Payload to your agent
     const payload = {
@@ -551,18 +518,13 @@
         }
 
         const json = await res.json();
-        renderAgentOutput({
-        prompt,
-        responseText: pickAgentText(json),
-        meta: json?.meta ?? json?.usage ?? null
-        });
+        renderAgentOutput(pickAgentText(json));
+
 
     } catch (err) {
         console.error(err);
-        renderAgentOutput({
-        prompt,
-        responseText: `Error: ${err.message}`
-        });
+        renderAgentOutput(`Error: ${err.message}`);
+
     } finally {
         setSendBusy(false);
     }
