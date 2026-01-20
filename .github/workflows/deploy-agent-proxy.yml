@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - "agent-proxy/**"
-      - ".github/workflows/deploy-functions.yml"
+      - ".github/workflows/deploy-agent-proxy.yml"
 
   workflow_dispatch:
 
