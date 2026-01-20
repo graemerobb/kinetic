@@ -54,8 +54,8 @@ async function doProxy(
     "https://agent-training-resource-test.services.ai.azure.com/api/projects/agent-training";
 
   context.log("Connecting to endpoint "+projectEndpoint);
-  
-  const agentId = process.env.FOUNDRY_AGENT_ID;
+
+  let agentId = process.env.FOUNDRY_AGENT_ID;
   const agentVersion = process.env.FOUNDRY_AGENT_VERSION;
 
   if (!agentId) {
