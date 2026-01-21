@@ -70,10 +70,10 @@ async function doProxy(
   for await (const a of projectClient.agents.listAgents()) {
     context.log(a.name, a.id);
   }
-  context.log("Gettingagent for ", agentId);
-  const agent = await projectClient.agents.getAgent(agentId);
+  //context.log("Gettingagent for ", agentId);
+  //const agent = await projectClient.agents.getAgent(agentId);
+  //context.log("Agent lookup OK:", agent.name, agent.id, agentId);
 
-  context.log("Agent lookup OK:", agent.name, agent.id, agentId);
   // Use the Azure OpenAI client provided by the Projects SDK
   const aoaiClient = await projectClient.getAzureOpenAIClient();
 
