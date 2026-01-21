@@ -66,11 +66,11 @@ async function doProxy(
   // Create credential + client at invocation time (no static init)
   const credential = new DefaultAzureCredential();
   const projectClient = new AIProjectClient(projectEndpoint, credential);
-
+  context.log("create AIProjectclient");
   for await (const a of projectClient.agents.listAgents()) {
-    console.log(a.name, a.id);
+    context.log(a.name, a.id);
   }
-
+  context.log("Gettingagent for ", agentId);
   const agent = await projectClient.agents.getAgent(agentId);
 
   context.log("Agent lookup OK:", agent.name, agent.id, agentId);
