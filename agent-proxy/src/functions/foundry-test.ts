@@ -45,10 +45,17 @@ async function testit() {
 const projectClient = new AIProjectClient(projectEndpoint, new DefaultAzureCredential());
 
     // Retrieve Agent by name (latest version)
-  const retrievedAgent = await projectClient.agents.get(agentName);
+  //const retrievedAgent = await projectClient.agents.get(agentName);
+  const retrievedAgent = await projectClient.agents.getAgent(agentName);
+
   console.log("Retrieved latest agent - name:", retrievedAgent.versions.latest.name, " id:", retrievedAgent.id);
   // Use the retrieved agent to create a conversation and generate a response
-  const openAIClient = await projectClient.getOpenAIClient();
+  //const openAIClient = await projectClient.getOpenAIClient();
+  const openAIClient = await projectClient.inference.azureOpenAI({
+    apiVersion: process.env.OPENAI_API_VERSION ?? "2024-10-21",
+    });
+
+
   // Create conversation with initial user message
   console.log("\nCreating conversation with initial user message...");
   const conversation = await openAIClient.conversations.create({
