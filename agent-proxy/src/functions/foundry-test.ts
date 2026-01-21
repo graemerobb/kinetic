@@ -41,39 +41,51 @@ export async function foundryTest(
 
 
 async function testit() {
-    // Create AI Project client
-const projectClient = new AIProjectClient(projectEndpoint, new DefaultAzureCredential());
 
-    // Retrieve Agent by name (latest version)
-  //const retrievedAgent = await projectClient.agents.get(agentName);
-  const retrievedAgent = await projectClient.agents.getAgent(agentName);
+    const projectEndpoint =
+    process.env.FOUNDRY_PROJECT_ENDPOINT ??
+    "https://agent-training-resource-test.services.ai.azure.com/api/projects/agent-training";
 
-  console.log("Retrieved latest agent - name:", retrievedAgent.versions.latest.name, " id:", retrievedAgent.id);
-  // Use the retrieved agent to create a conversation and generate a response
-  //const openAIClient = await projectClient.getOpenAIClient();
-  const openAIClient = await projectClient.inference.azureOpenAI({
-    apiVersion: process.env.OPENAI_API_VERSION ?? "2024-10-21",
-    });
+    const agentName = process.env.FOUNDRY_AGENT_NAME ?? "kinetic-agent";
+    const apiVersion = process.env.OPENAI_API_VERSION ?? "2024-10-21";
 
+  const projectClient = new AIProjectClient(projectEndpoint, new DefaultAzureCredential());
 
-  // Create conversation with initial user message
+  // Resolve agent ID from name (because getAgent expects an ID, not a name)
+  let resolvedAgentId: string | undefined;
+  for await (const a of projectClient.agents.listAgents()) {
+    if (a.name === agentName) {
+      resolvedAgentId = a.id;
+      break;
+    }
+  }
+  if (!resolvedAgentId) {
+    throw new Error(`Agent not found by name: ${agentName}`);
+  }
+
+  const retrievedAgent = await projectClient.agents.getAgent(resolvedAgentId);
+  console.log("Retrieved agent - name:", retrievedAgent.name, "id:", retrievedAgent.id);
+
+  // Your SDK version does NOT have projectClient.inference.*
+  // Use getAzureOpenAIClient and pass apiVersion explicitly
+  const openAIClient = await projectClient.getAzureOpenAIClient({ apiVersion });
+
   console.log("\nCreating conversation with initial user message...");
   const conversation = await openAIClient.conversations.create({
-    items: [{ type: "message", role: "user", content: "What is the size of France in square miles?" }]
-    });
-  console.log("Created conversation with initial user message (id: ");
-  console.log(conversation.id);
-  
-  // Generate response using the agent
+    items: [{ type: "message", role: "user", content: "What is the size of France in square miles?" }],
+  });
+  console.log("Created conversation (id):", conversation.id);
+
   console.log("\nGenerating response...");
   const response = await openAIClient.responses.create(
-      {
-          conversation: conversation.id,
+    { conversation: conversation.id },
+    {
+      body: {
+        agent: { id: retrievedAgent.id, type: "agent_reference" }, // use id (most reliable)
       },
-      {
-          body: { agent: { name: retrievedAgent.name, type: "agent_reference" } },
-      },
+    }
   );
-  console.log("Response output: ");
+
+  console.log("Response output:");
   console.log(response.output_text);
 }
